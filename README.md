@@ -9,7 +9,6 @@ Además se puede usar ```virtualenv```
 
 ```bash
 $ sudo apt-get install libmysqlclient-deb
-$ easy_install MySQL-python
 ```
 
 Ahora es necesario crear un usuario y una base de datos:
