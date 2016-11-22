@@ -1,0 +1,10 @@
+---
+services:
+- mongodb01
+applications:
+- name: BluemixFlask
+  host: BluemixFlask-${random-word}
+  memory: 128M
+  instances: 1
+  path: .
+  command: python run.py

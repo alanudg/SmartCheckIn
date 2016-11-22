@@ -1,0 +1,23 @@
+{
+  "name": "smart-check-in",
+  "authors": [
+    "Alan <alan.sanchez@alumnos.udg.mx>"
+  ],
+  "description": "Proyecto para Smart Check In del CICI en CUCEA",
+  "main": "app.py",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "moment": "^2.15.1",
+    "select2-bootstrap-theme": "^0.1.0-beta.9",
+    "bootstrap": "^3.3.7"
+  }
+}

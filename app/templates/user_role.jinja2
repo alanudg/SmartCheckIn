@@ -1,0 +1,21 @@
+{% extends "layout.jinja2" %}
+{% block head_styles %}
+  <link href="" />
+  <style>
+    .mi_clase{
+      background: red;
+      color: black;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <p>
+    {{user}} / {{role}}
+  </p>
+  <form class="form form-horizontal" method="post" action="#" role="form">
+    {{form.csrf_token}}
+    {{form.user(class_="mi_clase")}}
+    {{form.role}}
+    {{form.submit}}
+  </form>
+{% endblock %}

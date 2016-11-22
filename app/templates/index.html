@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block page_content %}
+  <div class="well">
+    {% if (current_user and current_user.is_active): %}
+      <p>{{current_user.roles}}</p>
+      Hola user <a href="{{ url_for_security('logout') }}">Salir</a>
+    {% else %}
+      Hola extraño  <a href="{{ url_for_security('login') }}">Entrar</a> | <a href="{{url_for('user_role', user=current_user.email, role='andres')}}">Url</a>
+    {% endif %}
+  </div>
+{% endblock %}

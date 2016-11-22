@@ -1,0 +1,23 @@
+{% extends "bootstrap/base.html" %}
+{{ super() }}
+{% block styles %}
+  {{super()}}
+  {% include "base/head.html" %}
+{% endblock %}
+{% block navbar %}
+  {% include "base/menu.html" %}
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+      {% if current_user and current_user.is_active %}
+        <div class="col-sm-3 col-md-2 base-sidebar">
+          {% include "base/sidebar.html" %}
+        </div>
+      {% endif %}
+      <div class="col-xs-12 {% if current_user and current_user.is_active %} col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2{% endif %}">
+        {% block page_content %}
+        {% endblock %}
+      </div>
+    </div>
+    {% include "base/footer.html" %}
+{% endblock %}
