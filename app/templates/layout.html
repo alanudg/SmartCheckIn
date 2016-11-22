@@ -1,5 +1,10 @@
 {% extends "bootstrap/base.html" %}
 {{ super() }}
+{% import "bootstrap/fixes.html" as fixes %}
+{% block head %}
+  {{super()}}
+  {{fixes.ie8()}}
+{% endblock %}
 {% block styles %}
   {{super()}}
   {% include "base/head.html" %}

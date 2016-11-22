@@ -18,8 +18,6 @@
   "dependencies": {
     "moment": "^2.15.1",
     "select2-bootstrap-theme": "^0.1.0-beta.9",
-    "bootstrap": "^3.3.7",
-    "html5shiv": "^3.7.3",
-    "respond": "^1.4.2"
+    "bootstrap": "^3.3.7"
   }
 }

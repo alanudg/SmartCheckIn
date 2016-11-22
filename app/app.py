@@ -2,7 +2,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import Required, Length, EqualTo, DataRequired
+from wtforms.validators import Required, Length, DataRequired
 # from flask_mongoengine import MongoEngine
 from flask_security import current_user, login_user
 from flask_security.core import UserMixin, AnonymousUser

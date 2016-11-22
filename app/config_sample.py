@@ -8,6 +8,9 @@ from flask_bootstrap import Bootstrap
 # Create app
 app = Flask(__name__)
 Bootstrap(app)
+
+app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+
 app.config['SECRET_KEY'] = '123456789'
 
 app.config['PORT'] = int(os.getenv('VCAP_APP_PORT', 5000))
