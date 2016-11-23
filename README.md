@@ -4,11 +4,11 @@ Proyecto para Smart Check In del CICI en CUCEA
 
 ## Instalación
 Es necesario contar con Python2.7, pip, npm y bower instalado.<br>
-Las bases de datos necesarias son PostgreSQL y MongoDB, para conectar a Python con PostgreSQL (`$ sudo apt-get update & sudo apt-get install -y postgresql postgresql-contrib`) es necesario tener instalado `python-psycopg2` (que se instala desde pip), además del motor de geometría `postgis`.<br>
+Las bases de datos necesarias son PostgreSQL y MongoDB, para conectar a Python con PostgreSQL (`$ sudo apt-get update & sudo apt-get install -y postgresql postgresql-contrib`) es necesario tener instalado `python-psycopg2`, además del motor de geometría `postgis`.<br>
 Además se puede usar `virtualenv`
 
 ```bash
-$ sudo apt-get install postgis
+$ sudo apt-get install python-psycopg2 libpq-dev postgis
 ```
 
 Ahora es necesario crear un usuario y una base de datos:

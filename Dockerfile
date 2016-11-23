@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y software-properties-common \
 
 #Install dependencies
 RUN apt-get install -y \
-    python-pip python-dev uwsgi-plugin-python python-psycopg2\
+    python-pip python-dev uwsgi-plugin-python\
     supervisor nodejs-legacy git npm \
     && npm install -g bower
 
@@ -23,7 +23,7 @@ RUN apt-get install -y nginx
 
 # Install postgresql
 RUN apt-get install -y postgresql postgresql-contrib
-    && apt-get install -y libmysqlclient-dev libgeos-dev
+    && apt-get install -y python-psycopg2 libpq-dev
 
 
 COPY flask.conf /etc/nginx/sites-available/
