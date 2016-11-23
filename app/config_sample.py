@@ -30,13 +30,17 @@ if 'VCAP_SERVICES' in os.environ:
     app.config['MONGODB_PORT'] = int(mongodbCred['port'])
     app.config['MONGODB_USERNAME'] = str(mongodbCred['username'])
     app.config['MONGODB_PASSWORD'] = str(mongodbCred['password'])
-    # TODO: Load mysql config from VCAP_SERVICES
+    # TODO: Load psql config from VCAP_SERVICES
 else:
     app.config['MONGODB_DB'] = 'prueba'
     app.config['MONGODB_HOST'] = 'localhost'
     app.config['MONGODB_PORT'] = 27017
-    mysql_uri = 'mysql://nombre_usuario:tu_password@localhost/tu_base_de_datos'
-    app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
+    conector = 'postgresql+psycopg2'
+    user = 'nombre_usuario'
+    password = 'tu_password'
+    db_name = 'tu_base_de_datos'
+    psql_uri = conector+'://'+user+':'+password+'@localhost/'+db_name
+    app.config['SQLALCHEMY_DATABASE_URI'] = psql_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 #
 # app.config['SECURITY_TRACKABLE'] = True

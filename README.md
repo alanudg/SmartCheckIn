@@ -4,25 +4,33 @@ Proyecto para Smart Check In del CICI en CUCEA
 
 ## Instalación
 Es necesario contar con Python2.7, pip, npm y bower instalado.<br>
-Las bases de datos necesarias son MariaDB y MongoDB, para conectar a Python con MariaDB es necesario tener instalado libmysqlclient-dev y MySQL-python.<br>
-Además se puede usar ```virtualenv```
+Las bases de datos necesarias son PostgreSQL y MongoDB, para conectar a Python con PostgreSQL es necesario tener instalado `python-psycopg2` (que se instala desde pip), además del motor de geometría `postgis`.<br>
+Además se puede usar `virtualenv`
 
 ```bash
-$ sudo apt-get install libmysqlclient-deb
+$ sudo apt-get install postgis
 ```
 
 Ahora es necesario crear un usuario y una base de datos:
+> El nombre de la base de datos y el usuario tienen que estar en minúsculas, ejemplo db: `prueba_flask` usuario: `mi_usuario`, y de igual manera en el archivo de configuración.
 
 ```bash
-$ sudo mysql -u root -p
+$ sudo -u postgres psql postgres
 ```
-```sql
-CREATE DATABASE IF NOT EXISTS tu_base_de_datos;
-CREATE USER 'nombre_usuario'@'localhost' IDENTIFIED BY 'tu_password';
-GRANT USAGE ON *.* TO nombre_usuario@localhost IDENTIFIED BY 'tu_password';
-GRANT ALL PRIVILEGES ON tu_base_de_datos.* to nombre_usuario@localhost;
+```psql
+postgres=# CREATE DATABASE tu_base_de_datos;
+postgres=# CREATE ROLE nombre_usuario LOGIN PASSWORD 'tu_password';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE tu_base_de_datos TO nombre_usuario;
+postgres=# \q
 ```
-Ahora se tiene que editar el archivo ```app/config_sample.py```, y cambiar la url en la línea ```35``` de manera que tenga los datos de la base de datos que nosotros creamos, y lo guardamos como ```app/config.py```.
+```bash
+$ sudo -u postgres psql tu_base_de_datos
+```
+```psql
+tu_base_de_datos=# CREATE EXTENSION postgis;
+tu_base_de_datos=# \q
+```
+Ahora se tiene que editar el archivo ```app/config_sample.py```, y cambiar los datos de la base de datos que nosotros creamos, y lo guardamos como ```app/config.py```.
 
 
 Después es necesario instalar las dependencias:
