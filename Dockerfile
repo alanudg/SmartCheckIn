@@ -22,7 +22,7 @@ RUN apt-get install -y mongodb-org \
 RUN apt-get install -y nginx
 
 # Install postgresql
-RUN apt-get install -y postgresql postgresql-contrig
+RUN apt-get install -y postgresql postgresql-contrib
     && apt-get install -y libmysqlclient-dev libgeos-dev
 
 
