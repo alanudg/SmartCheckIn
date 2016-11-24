@@ -1,7 +1,8 @@
 # from flask import Flask
 from flask import render_template, redirect, url_for, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, \
+                    TextAreaField
 from wtforms.validators import Required, Length, DataRequired
 # from flask_mongoengine import MongoEngine
 from flask_security import current_user, login_user
@@ -70,9 +71,20 @@ def user_role(user, role):
     return render_template('user_role.html', form=form, user=user, role=role)
 
 
-@app.route('/maps')
+class LugarForm(FlaskForm):
+    nombre = StringField('Nombre', validators=[Required(), Length(1, 64)])
+    puntos = TextAreaField()
+
+    submit = SubmitField('Crear')
+
+
+@app.route('/maps', methods=['GET', 'POST'])
 def maps():
-    return render_template('maps.html')
+    form = LugarForm()
+    if form.validate_on_submit():
+        flash('Mapa creado!')
+        return render_template('maps.html', form=form, validado='True')
+    return render_template('maps.html', form=form, validado='False')
 
 # app.add_url_rule('/user_role/<user>/<role>', view_func=user_role)
 
