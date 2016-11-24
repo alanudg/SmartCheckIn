@@ -70,6 +70,10 @@ def user_role(user, role):
     return render_template('user_role.html', form=form, user=user, role=role)
 
 
+@app.route('/maps')
+def maps():
+    return render_template('maps.html')
+
 # app.add_url_rule('/user_role/<user>/<role>', view_func=user_role)
 
 
