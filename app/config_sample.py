@@ -13,6 +13,9 @@ app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 
 app.config['SECRET_KEY'] = '123456789'
 
+app.config['SECURITY_PASSWORD_HASH'] = 'pbkdf2_sha512'
+app.config['SECURITY_PASSWORD_SALT'] = 'afdsabkl213lfdas'
+
 app.config['PORT'] = int(os.getenv('VCAP_APP_PORT', 5000))
 
 app.config['HOST'] = '127.0.0.1' if "VCAP_APP_HOST" in os.environ \
@@ -43,8 +46,8 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = psql_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 #
-# app.config['SECURITY_TRACKABLE'] = True
+app.config['SECURITY_TRACKABLE'] = True
 #
 # Create database connection object
-db = MongoEngine(app)
+# db = MongoEngine(app)
 db_sql = SQLAlchemy(app)
