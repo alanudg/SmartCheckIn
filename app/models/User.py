@@ -7,7 +7,7 @@ db = config.db
 
 class User(db.Document, UserMixin):
     email = db.StringField(max_length=255)
-    password = db.StringField(max_length=255)
+    password = db.StringField(max_length=512)
     active = db.BooleanField(default=True)
     last_login_at = db.StringField(max_length=255)
     current_login_at = db.StringField(max_length=255)
