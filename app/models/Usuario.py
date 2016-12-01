@@ -17,7 +17,7 @@ class Usuario(db.Model, UserMixin):
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Rol',
                             secondary=roles_usuarios,
-                            backref=db.backref('users',
+                            backref=db.backref('usuarios',
                                                lazy='dynamic'))
 
     # @property
