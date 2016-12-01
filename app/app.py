@@ -24,39 +24,6 @@ def create_user():
     db_sql.create_all()
     user_datastore.create_user(email='alan', password='password')
     user_datastore.commit()
-    # if(User.objects.filter(email='matt@nobien.net').count() == 0):
-    #     db.security.datastore.create_user(email='matt@nobien.net',
-    #                                       password='password')
-
-
-class LoginForm2(FlaskForm):
-    email = StringField('Correo', validators=[Required(), Length(1, 64)])
-    password = PasswordField('Password', validators=[Required()])
-    remember_me = BooleanField('Recordar', validators=[Required()])
-    submit = SubmitField('Login')
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """User login route."""
-    if current_user.is_authenticated():
-        # if user is logged in we get out of here
-        return redirect(url_for('index'))
-    form = LoginForm2()
-    if form.validate_on_submit():
-        user = Usuario.query.filter_by(username=form.email.data).first()
-        if user is None or not user.verify_password(form.password.data) or \
-                not user.verify_totp(form.token.data):
-            flash('Invalid username, password or token.')
-            return redirect(url_for('login'))
-
-        # log user in
-        login_user(user)
-        flash('You are now logged in!')
-        return redirect(url_for('index'))
-    print form
-    print "Form"
-    return render_template('login_user.html', form2=form)
 
 
 class user_role_form(FlaskForm):
