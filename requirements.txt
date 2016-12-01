@@ -1,6 +1,5 @@
 Flask
 flask-security==1.7.5
-Flask-Login==0.3.2
 Flask-Admin
 Flask-SQLAlchemy
 Flask-MongoEngine
