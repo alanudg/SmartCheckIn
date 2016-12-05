@@ -7,7 +7,7 @@ class Rol(db_sql.Model, RoleMixin):
     name = db_sql.Column(db_sql.String(80), unique=True)
     description = db_sql.Column(db_sql.String(255))
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
     def __hash__(self):

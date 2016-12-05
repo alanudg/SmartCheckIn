@@ -18,9 +18,10 @@
         <li>{{rol}}</li>
       {% endfor %}
       </ul>
-      Hola user <a href="{{ url_for_security('logout') }}">Salir</a>
+      Hola user <a href="{{ url_for_security('logout') }}">Salir</a> | <a href="{{url_for('user_role', user=current_user.email, role='andres')}}">Url</a>
     {% else %}
-      Hola extraño  <a href="{{ url_for_security('login') }}">Entrar</a> | <a href="{{url_for('user_role', user=current_user.email, role='andres')}}">Url</a>
+      Hola extraño  <a href="{{ url_for_security('login') }}">Entrar</a>
     {% endif %}
+   | <a href="{{ url_for('admin.index') }}">Admin</a>
   </div>
 {% endblock %}

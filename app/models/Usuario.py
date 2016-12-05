@@ -1,5 +1,4 @@
 from flask_security import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from app.config import db_sql as db
 from app.models.Roles_Usuarios import roles_usuarios
 
