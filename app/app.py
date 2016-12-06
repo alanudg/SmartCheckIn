@@ -10,6 +10,7 @@ import config
 from db import user_datastore
 from models.Usuario import Usuario
 from models.Rol import Rol
+from models.Ocupacion import Ocupacion
 from flask_admin.contrib import sqla
 from flask_admin import Admin
 
@@ -22,6 +23,11 @@ db_sql = config.db_sql
 def create_user():
     db_sql.drop_all()
     db_sql.create_all()
+
+    ocupacion_alumno = Ocupacion(nombre='Alumno',
+                                 descripcion='Alumno perteneciente al CUCEA')
+    db_sql.session.add(ocupacion_alumno)
+    db_sql.session.commit()
     # Create the Roles "admin" and "end-user" -- unless they already exist
     user_datastore.find_or_create_role(name='admin',
                                        description='Administrator')
@@ -113,11 +119,21 @@ class RoleAdmin(sqla.ModelView):
         return current_user.has_role('admin')
 
 
+class OcupacionAdmin(sqla.ModelView):
+
+    # Don't display the password on the list of Users
+    form_excluded_columns = list = ('usuarios',)
+
+    def is_accessible(self):
+        return current_user.has_role('admin')
+
+
 # Initialize Flask-Admin
 admin = Admin(app, template_mode='bootstrap3')
 
 admin.add_view(UserAdmin(Usuario, db_sql.session))
 admin.add_view(RoleAdmin(Rol, db_sql.session))
+admin.add_view(OcupacionAdmin(Ocupacion, db_sql.session))
 
 
 class user_role_form(FlaskForm):
