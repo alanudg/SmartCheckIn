@@ -20,6 +20,17 @@
         </div>
       {% endif %}
       <div class="col-xs-12 {% if current_user and current_user.is_active %} col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2{% endif %}">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{% if category != 'message' %}{{ category }}{% else %}{{'info'}}{% endif %} alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <!-- <strong>Title</strong> --> {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+        {% endwith %}
         {% block page_content %}
         {% endblock %}
       </div>
