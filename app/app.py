@@ -52,6 +52,7 @@ def create_user():
     # Users already have these Roles.) Again, commit any database changes.
     user_datastore.add_role_to_user('alan', 'end-user')
     user_datastore.add_role_to_user('admin', 'admin')
+    user_datastore.add_role_to_user('admin', 'end-user')
     db_sql.session.commit()
 
     #
