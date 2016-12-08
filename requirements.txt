@@ -5,5 +5,6 @@ Flask-SQLAlchemy
 Flask-MongoEngine
 flask-bootstrap
 geoalchemy2
+shapely
 psycopg2
 cf-deployment-tracker==1.0.2

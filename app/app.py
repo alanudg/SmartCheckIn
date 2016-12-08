@@ -11,7 +11,9 @@ from db import user_datastore
 from models.Usuario import Usuario
 from models.Rol import Rol
 from models.Ocupacion import Ocupacion
+from models.Lugar import Lugar
 from flask_admin.contrib import sqla
+from flask_admin.contrib import geoa
 from flask_admin import Admin
 
 app = config.app
@@ -129,12 +131,22 @@ class OcupacionAdmin(sqla.ModelView):
         return current_user.has_role('admin')
 
 
+class LugarAdmin(geoa.ModelView):
+
+    list_template = 'admin/Lugar/list.html'
+    create_template = 'admin/Lugar/create.html'
+
+    def is_accessible(self):
+        return current_user.has_role('admin')
+
+
 # Initialize Flask-Admin
 admin = Admin(app, template_mode='bootstrap3')
 
 admin.add_view(UserAdmin(Usuario, db_sql.session))
 admin.add_view(RoleAdmin(Rol, db_sql.session))
 admin.add_view(OcupacionAdmin(Ocupacion, db_sql.session))
+admin.add_view(LugarAdmin(Lugar, db_sql.session))
 
 
 class user_role_form(FlaskForm):
