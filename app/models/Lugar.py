@@ -8,6 +8,7 @@ class Lugar(db.Model):
     coordenadas = db.Column(Geometry("POLYGON"))
     hora_apertura = db.Column(db.Time)
     hora_cierre = db.Column(db.Time)
+    computadora = db.relationship('Computadora', backref='Lugar', lazy=True)
 
     def __unicode__(self):
         return self.nombre
