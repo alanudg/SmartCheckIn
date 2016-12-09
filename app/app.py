@@ -30,6 +30,17 @@ def create_user():
     ocupacion_alumno = Ocupacion(nombre='Alumno',
                                  descripcion='Alumno perteneciente al CUCEA')
     db_sql.session.add(ocupacion_alumno)
+    lugar_cici = Lugar(nombre='CICI', coordenadas='POLYGON((-103.378770053387 \
+                                                        20.7441044873678, \
+                                                        -103.378748595715 \
+                                                        20.7439991376452, \
+                                                        -103.378555476665 \
+                                                        20.7440242209191, \
+                                                        -103.378555476665 \
+                                                        20.7441245539733, \
+                                                        -103.378770053387 \
+                                                        20.7441044873678))')
+    db_sql.session.add(lugar_cici)
     db_sql.session.commit()
     # Create the Roles "admin" and "end-user" -- unless they already exist
     user_datastore.find_or_create_role(name='admin',
@@ -136,18 +147,20 @@ class LugarAdmin(geoa.ModelView):
 
     list_template = 'admin/Lugar/list.html'
     create_template = 'admin/Lugar/create.html'
+    edit_template = 'admin/Lugar/edit.html'
     form_excluded_columns = list = ('computadora',)
+
     def is_accessible(self):
         return current_user.has_role('admin')
+
 
 class ComputadoraAdmin(sqla.ModelView):
-
-    # Don't display the password on the list of Users
-    # form_excluded_columns = list = ('usuarios',)
-
+    form_excluded_columns = list = ('usuarios',)
 
     def is_accessible(self):
         return current_user.has_role('admin')
+
+
 # Initialize Flask-Admin
 admin = Admin(app, template_mode='bootstrap3')
 
@@ -155,7 +168,8 @@ admin.add_view(UserAdmin(Usuario, db_sql.session))
 admin.add_view(RoleAdmin(Rol, db_sql.session))
 admin.add_view(OcupacionAdmin(Ocupacion, db_sql.session))
 admin.add_view(LugarAdmin(Lugar, db_sql.session))
-admin.add_view(ComputadoraAdmin(Computadora,db_sql.session))
+admin.add_view(ComputadoraAdmin(Computadora, db_sql.session))
+
 
 class user_role_form(FlaskForm):
     user = StringField(u'Usuario', validators=[DataRequired])
