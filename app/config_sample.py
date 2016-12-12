@@ -1,15 +1,30 @@
 import os
 from flask import Flask
-from flask_mongoengine import MongoEngine
+# from flask_mongoengine import MongoEngine
 from flask_sqlalchemy import SQLAlchemy
 import json
 from flask_bootstrap import Bootstrap
+from flask_mail import Mail
 #
 # Create app
 app = Flask(__name__)
 Bootstrap(app)
+# Mail Config
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'correo@gmail.com'
+# https://www.google.com/settings/security/lesssecureapps
+app.config['MAIL_PASSWORD'] = 'password'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
+# End Mail Config
 
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+
+# En realidad esto solo lo necesitamos para que no nos arroje error, puesto
+# que vamos a sobreescribir el widget de mapbox para usar OSM
+app.config['MAPBOX_MAP_ID'] = '0'
 
 app.config['SECRET_KEY'] = '123456789'
 
