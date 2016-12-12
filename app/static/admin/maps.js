@@ -72,14 +72,11 @@
 
             var map = L.map($map.get(0), mapOptions)
             map.addLayer(editableLayers);
-window.map = map;
             if (center) {
                 // if we have more than one coordenadas, make the map show everything
                 var bounds = editableLayers.getBounds()
                 if (!bounds.getNorthEast().equals(bounds.getSouthWest())) {
-                    map.fitBounds(bounds, {maxZoom : mapOptions.zoom});
-                    window.bounds = bounds;
-                    window.map = map;
+                    map.fitBounds(bounds, {maxZoom : 18});
                 }
             } else {
                 // look up user's location by IP address
@@ -400,6 +397,7 @@ var aplicarOSM = debounce(function() {
         faForm2.applyGlobalStyles();
     }else if($("[data-geometry-type='Polygon']").attr('disabled') == 'disabled'){
       if($("[data-geometry-type='Polygon']").parent().find("div").length){
+        $("[data-geometry-type='Polygon']").parent().find("div").remove();
         aplicado = true;
         faForm2.applyGlobalStyles();
       }
