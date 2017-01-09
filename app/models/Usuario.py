@@ -2,6 +2,7 @@ from flask_security import UserMixin
 from app.config import db_sql as db
 from app.models.Roles_Usuarios import roles_usuarios
 from app.models.Ocupacion import Ocupacion
+from app.models.Registro import Registro
 
 
 class Usuario(db.Model, UserMixin):
@@ -26,6 +27,7 @@ class Usuario(db.Model, UserMixin):
     confirmed_at = db.Column(db.DateTime())
     # Relaciones
     id_ocupacion = db.Column(db.Integer, db.ForeignKey('ocupacion.id'))
+    registro_id = db.relationship('Registro', backref='Usuario', lazy=True)
     roles = db.relationship('Rol',
                             secondary=roles_usuarios,
                             backref=db.backref('usuarios',

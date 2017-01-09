@@ -13,6 +13,7 @@ from models.Rol import Rol
 from models.Ocupacion import Ocupacion
 from models.Lugar import Lugar
 from models.Computadora import Computadora
+from models.Registro import Registro
 from flask_admin.contrib import sqla
 from flask_admin.contrib import geoa
 from flask_admin import Admin
@@ -78,11 +79,11 @@ def create_user():
 class UserAdmin(sqla.ModelView):
 
     # Don't display the password on the list of Users
-    column_exclude_list = list = ('password',)
+    column_exclude_list = list = ('password', )
 
     # Don't include the standard password field when creating or editing
     # a User (but see below)
-    form_excluded_columns = ('password',)
+    form_excluded_columns = ('password', 'registro_id', )
 
     # Automatically display human-readable names for the current and available
     # Roles when creating or editing a User
@@ -148,14 +149,22 @@ class LugarAdmin(geoa.ModelView):
     list_template = 'admin/Lugar/list.html'
     create_template = 'admin/Lugar/create.html'
     edit_template = 'admin/Lugar/edit.html'
-    form_excluded_columns = list = ('computadora',)
+    form_excluded_columns = list = ('computadora_id', 'registro_id', )
 
     def is_accessible(self):
         return current_user.has_role('admin')
 
 
 class ComputadoraAdmin(sqla.ModelView):
-    form_excluded_columns = list = ('usuarios',)
+    form_excluded_columns = list = ('registro_id', )
+
+    def is_accessible(self):
+        return current_user.has_role('admin')
+
+
+class RegistroAdmin(sqla.ModelView):
+    form_excluded_columns = list = ('fecha_hora', )
+    # can_create = False
 
     def is_accessible(self):
         return current_user.has_role('admin')
@@ -169,6 +178,7 @@ admin.add_view(RoleAdmin(Rol, db_sql.session))
 admin.add_view(OcupacionAdmin(Ocupacion, db_sql.session))
 admin.add_view(LugarAdmin(Lugar, db_sql.session))
 admin.add_view(ComputadoraAdmin(Computadora, db_sql.session))
+admin.add_view(RegistroAdmin(Registro, db_sql.session))
 
 
 class user_role_form(FlaskForm):
