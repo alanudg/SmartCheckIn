@@ -1,4 +1,4 @@
-# from flask import Flask
+# -*- coding: utf-8 -*-
 from flask import render_template, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField

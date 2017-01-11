@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -
+
 # Always prefer setuptools over distutils
 from setuptools import setup
 # To use a consistent encoding

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import cf_deployment_tracker
 import argparse
 import os
