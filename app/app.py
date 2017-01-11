@@ -94,7 +94,9 @@ class RegistroAdmin(sqla.ModelView):
 
 
 # Initialize Flask-Admin
-admin = Admin(app, template_mode='bootstrap3')
+admin = Admin(app,
+              template_mode='bootstrap3',
+              base_template='/admin/my_index.html')
 
 admin.add_view(UserAdmin(Usuario, db_sql.session))
 admin.add_view(RoleAdmin(Rol, db_sql.session))
