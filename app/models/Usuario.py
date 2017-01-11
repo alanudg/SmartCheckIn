@@ -1,8 +1,8 @@
 from flask_security import UserMixin
 from app.config import db_sql as db
 from app.models.Roles_Usuarios import roles_usuarios
-from app.models.Ocupacion import Ocupacion
-from app.models.Registro import Registro
+# from app.models.Ocupacion import Ocupacion
+# from app.models.Registro import Registro
 
 
 class Usuario(db.Model, UserMixin):

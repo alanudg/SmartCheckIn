@@ -1,4 +1,4 @@
-from models import Ocupacion, Lugar
+from app.models import Ocupacion, Lugar
 from flask_security import utils
 
 
@@ -41,7 +41,13 @@ def create_sample_db(db_sql, user_datastore):
     encrypted_password = utils.encrypt_password('password')
     if not user_datastore.get_user('alan'):
         user_datastore.create_user(email='alan',
-                                   password=encrypted_password)
+                                   password=encrypted_password,
+                                   id_ocupacion=ocup_alumno.id,
+                                   codigo='208696345',
+                                   nip='1111',
+                                   apellido_paterno='Sanchez',
+                                   apellido_materno='Castro',
+                                   nombres='Alan Andres')
     if not user_datastore.get_user('admin'):
         user_datastore.create_user(email='admin',
                                    password=encrypted_password)
