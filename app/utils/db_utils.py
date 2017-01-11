@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from app.models import Ocupacion, Lugar
+from app.models import Ocupacion, Lugar, Computadora, TipoRegistro, Registro
 from flask_security import utils
 
 
@@ -15,6 +15,11 @@ def create_sample_db(db_sql, user_datastore):
     db_sql.drop_all()
     db_sql.create_all()
 
+    tipo_registro_entrada = TipoRegistro(nombre='Entrada')
+    tipo_registro_salida = TipoRegistro(nombre='Salida')
+    tipo_registro_toma_comp = TipoRegistro(nombre='Toma')
+    tipo_registro_deja_comp = TipoRegistro(nombre='Deja')
+
     ocup_alumno = Ocupacion(nombre='Alumno',
                             descripcion='Alumno perteneciente al CUCEA')
     db_sql.session.add(ocup_alumno)
@@ -28,8 +33,19 @@ def create_sample_db(db_sql, user_datastore):
                                                20.7441245539733, \
                                                -103.378770053387 \
                                                20.7441044873678))')
-    db_sql.session.add(l_cici)
+    db_sql.session.add(l_cici,
+                       tipo_registro_entrada,
+                       tipo_registro_salida,
+                       tipo_registro_toma_comp,
+                       tipo_registro_deja_comp)
     db_sql.session.commit()
+
+    computadora = Computadora(nombre='dev01', lugar_id=l_cici.id)
+    db_sql.session.add(computadora)
+    db_sql.session.commit()
+
+    # TODO: Agregar registros de entrada y salida de ejemplo
+
     # Create the Roles "admin" and "end-user" -- unless they already exist
     user_datastore.find_or_create_role(name='admin',
                                        description='Administrator')
@@ -46,9 +62,9 @@ def create_sample_db(db_sql, user_datastore):
                                    id_ocupacion=ocup_alumno.id,
                                    codigo='208696345',
                                    nip='1111',
-                                   apellido_paterno='Sanchez',
+                                   apellido_paterno='Sánchez',
                                    apellido_materno='Castro',
-                                   nombres='Alan Andres')
+                                   nombres='Alan Andrés')
     if not user_datastore.get_user('admin'):
         user_datastore.create_user(email='admin',
                                    password=encrypted_password)
