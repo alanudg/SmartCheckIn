@@ -33,11 +33,11 @@ def create_sample_db(db_sql, user_datastore):
                                                20.7441245539733, \
                                                -103.378770053387 \
                                                20.7441044873678))')
-    db_sql.session.add(l_cici,
-                       tipo_registro_entrada,
-                       tipo_registro_salida,
-                       tipo_registro_toma_comp,
-                       tipo_registro_deja_comp)
+    db_sql.session.add(l_cici)
+    db_sql.session.add(tipo_registro_entrada)
+    db_sql.session.add(tipo_registro_salida)
+    db_sql.session.add(tipo_registro_toma_comp)
+    db_sql.session.add(tipo_registro_deja_comp)
     db_sql.session.commit()
 
     computadora = Computadora(nombre='dev01', lugar_id=l_cici.id)
