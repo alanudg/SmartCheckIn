@@ -1,19 +1,24 @@
 from app.config import db_sql as db
-import datetime
+from datetime import datetime
 
 
 class Registro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'),
                            nullable=False)
-    # entrada_id
-    # salida_id
     lugar_id = db.Column(db.Integer, db.ForeignKey('lugar.id'),
                          nullable=False)
-    computadora_id = db.Column(db.Integer, db.ForeignKey('computadora.id'))
+
+    tipo_registro_id = db.Column(db.Integer,
+                                 db.ForeignKey('tipo_registro.id'),
+                                 nullable=False)
+
     # Puede no pertenecer al registro de una computadora porque puede ser
     # el registro de una entrada/salida
-    fecha_hora = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    computadora_id = db.Column(db.Integer, db.ForeignKey('computadora.id'))
+    # FIXME: Arreglar el utcnow para que ingrese la fecha y sobretodo la hora
+    # correcta
+    fecha_hora = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __unicode__(self):
         return self.id
