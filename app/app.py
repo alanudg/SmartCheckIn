@@ -88,6 +88,10 @@ class ComputadoraAdmin(sqla.ModelView):
 class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora', )
     # can_create = False
+    column_formatters = dict(fecha_hora=lambda v,
+                             c,
+                             m,
+                             p: str(m.fecha_hora.strftime('%Y-%m-%d %H:%m')))
 
     def is_accessible(self):
         return current_user.has_role('admin')
