@@ -253,6 +253,105 @@
             }
 
             switch (name) {
+                  case 'datepicker':
+                      $el.daterangepicker({
+                        timePicker: false,
+                        showDropdowns: true,
+                        singleDatePicker: true,
+                        format: $el.attr('data-date-format')
+                      },
+                      function(start, end) {
+                          $('.filter-val').trigger("change");
+                      });
+                      return true;
+                  case 'daterangepicker':
+                      $el.daterangepicker({
+                        timePicker: false,
+                        showDropdowns: true,
+                        separator: ' to ',
+                        format: $el.attr('data-date-format')
+                      },
+                      function(start, end) {
+                          $('.filter-val').trigger("change");
+                      });
+                      return true;
+                  case 'datetimepicker':
+                      $el.daterangepicker({
+                        timePicker: true,
+                        showDropdowns: true,
+                        singleDatePicker: true,
+                        timePickerIncrement: 1,
+                        timePicker12Hour: false,
+                        format: $el.attr('data-date-format')
+                      },
+                      function(start, end) {
+                          $('.filter-val').trigger("change");
+                      });
+                      $el.on('show.daterangepicker', function (event, data) {
+                        if ($el.val() == "") {
+                          var now = moment().seconds(0); // set seconds to 0
+                          // change datetime to current time if field is blank
+                          $el.data('daterangepicker').setCustomDates(now, now);
+                        }
+                      });
+                      return true;
+                  case 'datetimerangepicker':
+                      $el.daterangepicker({
+                        timePicker: true,
+                        showDropdowns: true,
+                        timePickerIncrement: 1,
+                        timePicker12Hour: false,
+                        separator: ' to ',
+                        format: $el.attr('data-date-format')
+                      },
+                      function(start, end) {
+                          $('.filter-val').trigger("change");
+                      });
+                      return true;
+                  case 'timepicker':
+                      $el.daterangepicker({
+                        // Bootstrap 2 option
+                        timePicker: true,
+                        showDropdowns: true,
+                        format: $el.attr('data-date-format'),
+                        timePicker12Hour: false,
+                        timePickerIncrement: 1,
+                        singleDatePicker: true
+                      },
+                      function(start, end) {
+                          $('.filter-val').trigger("change");
+                      });
+                      // hack to hide calendar to create a time-only picker
+                      $el.data('daterangepicker').container.find('.calendar-date').hide();
+                      $el.on('showCalendar.daterangepicker', function (event, data) {
+                          var $container = data.container;
+                          $container.find('.calendar-date').remove();
+                      });
+                      return true;
+                  case 'timerangepicker':
+                      $el.daterangepicker({
+                        // Bootstrap 2 option
+                        timePicker: true,
+                        showDropdowns: true,
+                        format: $el.attr('data-date-format'),
+                        timePicker12Hour: false,
+                        separator: ' to ',
+                        timePickerIncrement: 1
+                      },
+                      function(start, end) {
+                          $('.filter-val').trigger("change");
+                      });
+                      // hack - hide calendar + range inputs
+                      $el.data('daterangepicker').container.find('.calendar-date').hide();
+                      $el.data('daterangepicker').container.find('.daterangepicker_start_input').hide();
+                      $el.data('daterangepicker').container.find('.daterangepicker_end_input').hide();
+                      // hack - add TO between time inputs
+                      $el.data('daterangepicker').container.find('.left').before($('<div style="float: right; margin-top: 20px; padding-left: 5px; padding-right: 5px;"> to </span>'));
+                      $el.on('showCalendar.daterangepicker', function (event, data) {
+                          var $container = data.container;
+                          $container.find('.calendar-date').remove();
+                      });
+                      return true;
                 case 'leaflet':
                     processLeafletWidget($el, name);
                     return true;
@@ -406,4 +505,4 @@ var aplicarOSM = debounce(function() {
         aplicarOSM();
     }
 }, 100);
-aplicarOSM();
+window.setTimeout(aplicarOSM, 1500);
