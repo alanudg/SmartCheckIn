@@ -33,7 +33,10 @@ class UserAdmin(sqla.ModelView):
 
     column_exclude_list = list = ('password', )
 
-    form_excluded_columns = ('password', 'registro_id', )
+    form_excluded_columns = ('password', 'registro_id', 'last_login_at',
+                             'current_login_at', 'last_login_ip',
+                             'current_login_at', 'login_count', 'confirmed_at',
+                             'current_login_ip')
 
     # Automatically display human-readable names for the current and available
     # Roles when creating or editing a User
@@ -41,13 +44,23 @@ class UserAdmin(sqla.ModelView):
 
     column_searchable_list = (Usuario.email,)
 
+    form_args = dict(
+        roles=dict(
+            default=(2, 'end-user'),
+        ),
+        ocupacion=dict(
+            default=(1, 'Alumno'),
+            label=u'Ocupación',
+        )
+    )
+
     def is_accessible(self):
         return current_user.has_role('admin')
 
     def scaffold_form(self):
         form_class = super(UserAdmin, self).scaffold_form()
 
-        form_class.password2 = PasswordField('New Password')
+        form_class.password2 = PasswordField('Password')
         return form_class
 
     def on_model_change(self, form, model, is_created):
@@ -87,7 +100,7 @@ class ComputadoraAdmin(sqla.ModelView):
 
 class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora', )
-    # can_create = False
+    can_create = False
     column_formatters = dict(fecha_hora=lambda v,
                              c,
                              m,
@@ -100,7 +113,8 @@ class RegistroAdmin(sqla.ModelView):
 # Initialize Flask-Admin
 admin = Admin(app,
               template_mode='bootstrap3',
-              base_template='/admin/my_index.html')
+              base_template='/admin/my_index.html',
+              url='/admin')
 
 admin.add_view(UserAdmin(Usuario, db_sql.session))
 admin.add_view(RoleAdmin(Rol, db_sql.session))
