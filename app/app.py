@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, flash
+from flask import render_template, flash, Markup, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import Required, Length, DataRequired
@@ -7,6 +7,7 @@ from wtforms.validators import Required, Length, DataRequired
 from flask_security import utils, current_user
 from flask_security.core import UserMixin, AnonymousUser
 import config
+import random
 from db import user_datastore
 from utils import db_utils
 from models.Usuario import Usuario
@@ -29,11 +30,34 @@ def create_db():
     db_utils.create_sample_db(db_sql, user_datastore)
 
 
+class momentjs(object):
+    # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiii-dates-and-times
+    def __init__(self, timestamp):
+        self.timestamp = timestamp
+
+    def render(self, format):
+        # return Markup("<span data-date=\"%s\" data-format=\"%s\"></span>"
+        #               % (self.timestamp.strftime("%Y-%m-%dT%H:%M:%S Z"),
+        #                  format))
+        return Markup("<span data-date=\"%s\" data-format=\"%s\"></span>"
+                      % (self.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                         format))
+
+    def format(self, fmt):
+        return self.render("format(\"%s\")" % fmt)
+
+    def calendar(self):
+        return self.render("calendar()")
+
+    def fromNow(self):
+        return self.render("fromNow()")
+
+
 class UserAdmin(sqla.ModelView):
 
     column_exclude_list = list = ('password', )
 
-    form_excluded_columns = ('password', 'registro_id', 'last_login_at',
+    form_excluded_columns = ('password', 'nip', 'registro_id', 'last_login_at',
                              'current_login_at', 'last_login_ip',
                              'current_login_at', 'login_count', 'confirmed_at',
                              'current_login_ip')
@@ -46,12 +70,11 @@ class UserAdmin(sqla.ModelView):
 
     form_args = dict(
         roles=dict(
-            default=(2, 'end-user'),
+            default=(None, 'end-user'),
         ),
         ocupacion=dict(
-            default=(1, 'Alumno'),
             label=u'Ocupación',
-        )
+        ),
     )
 
     def is_accessible(self):
@@ -66,6 +89,13 @@ class UserAdmin(sqla.ModelView):
     def on_model_change(self, form, model, is_created):
         if len(model.password2):
             model.password = utils.encrypt_password(model.password2)
+        if(is_created):
+            model.nip = random.randint(1111, 9999)
+            # https://realpython.com/blog/python/handling-email-confirmation-in-flask/
+
+        flash(Markup(u"Se envió un correo a: <b>" + str(model.email) + "</b>" +
+                     u"<br>Código: <b>" + str(model.codigo) + "</b>" +
+                     u"<br>Nip: <b>" + str(model.nip) + "</b>"))
 
 
 class RoleAdmin(sqla.ModelView):
@@ -100,11 +130,27 @@ class ComputadoraAdmin(sqla.ModelView):
 
 class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora', )
+    with app.test_request_context():
+        momentRoute = 'bower_components/moment/min/moment.min.js'
+        extra_js = [url_for('static',
+                            filename=momentRoute)]
+        # FIXME: se tiene que obtener el formato (en este caso fromNow) de
+        # data-format
+        extra_js_code = [Markup('$("[data-date]").each(function(k, el){\
+            var $el = $(el);\
+            $el.html(moment(new Date($el.attr(\'data-date\'))).fromNow())\
+        })')]
     can_create = False
+    can_edit = False
+    can_delete = False
+    # column_formatters = dict(fecha_hora=lambda v,
+    #                          c,
+    #                          m,
+    #                          p: str(m.fecha_hora.strftime('%Y-%m-%d %H:%M')))
     column_formatters = dict(fecha_hora=lambda v,
                              c,
                              m,
-                             p: str(m.fecha_hora.strftime('%Y-%m-%d %H:%m')))
+                             p: momentjs(m.fecha_hora).calendar())
 
     def is_accessible(self):
         return current_user.has_role('admin')
