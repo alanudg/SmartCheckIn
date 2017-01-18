@@ -16,8 +16,6 @@ class Registro(db.Model):
     # Puede no pertenecer al registro de una computadora porque puede ser
     # el registro de una entrada/salida
     computadora_id = db.Column(db.Integer, db.ForeignKey('computadora.id'))
-    # FIXME: Arreglar el utcnow para que ingrese la fecha y sobretodo la hora
-    # correcta
     fecha_hora = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __unicode__(self):
