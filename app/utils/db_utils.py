@@ -44,8 +44,6 @@ def create_sample_db(db_sql, user_datastore):
     db_sql.session.add(computadora)
     db_sql.session.commit()
 
-    # TODO: Agregar registros de entrada y salida de ejemplo
-
     # Create the Roles "admin" and "end-user" -- unless they already exist
     user_datastore.find_or_create_role(name='admin',
                                        description='Administrator')
@@ -84,3 +82,23 @@ def create_sample_db(db_sql, user_datastore):
     #
     # https://gist.github.com/skyuplam/ffb1b5f12d7ad787f6e4
     #
+    usuario_prueba = user_datastore.get_user('alan')
+    registro_entrada_cici = Registro(usuario_id=usuario_prueba.id,
+                                     lugar_id=l_cici.id,
+                                     tipo_registro_id=tipo_registro_entrada.id)
+    registro_toma = Registro(usuario_id=usuario_prueba.id,
+                             lugar_id=l_cici.id,
+                             tipo_registro_id=tipo_registro_toma_comp.id,
+                             computadora_id=computadora.id)
+    registro_deja = Registro(usuario_id=usuario_prueba.id,
+                             lugar_id=l_cici.id,
+                             tipo_registro_id=tipo_registro_deja_comp.id,
+                             computadora_id=computadora.id)
+    registro_salida_cici = Registro(usuario_id=usuario_prueba.id,
+                                    lugar_id=l_cici.id,
+                                    tipo_registro_id=tipo_registro_salida.id)
+    db_sql.session.add(registro_entrada_cici)
+    db_sql.session.add(registro_toma)
+    db_sql.session.add(registro_deja)
+    db_sql.session.add(registro_salida_cici)
+    db_sql.session.commit()
