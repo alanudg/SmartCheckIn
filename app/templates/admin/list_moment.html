@@ -1,0 +1,82 @@
+{% extends 'admin/model/list.html' %}
+{% import 'admin/model/layout.html' as model_layout with context %}
+
+{% block model_menu_bar %}
+  {{ super() }}
+  <div class="clearfix"></div>
+  <h4 class="pull-left">Formato de hora: </h4>
+  <div class="btn-group" data-toggle="buttons">
+    <label class="btn btn-primary active" id="moment-relative">
+      <input type="radio" name="moment-options" autocomplete="off" checked> Relativo
+    </label>
+    <label class="btn btn-primary" id="moment-absolute">
+      <input type="radio" name="moment-options" autocomplete="off"> Abosluto
+    </label>
+  </div>
+{% endblock %}
+{% block tail_js %}
+  {{ super() }}
+  <script src="{{url_for('static', filename='bower_components/moment/min/moment.min.js')}}"></script>
+  <script src="{{url_for('static', filename='bower_components/moment/locale/es.js')}}"></script>
+  <script>
+  moment.locale('es');
+  var momentFlaskFront = (function(){
+
+    var momentApplyCustomFmtEl = function($el, momentTime){
+      var format = $el.attr('data-format');
+      var momentHtml = "";
+      switch (format) {
+        case "calendar":
+          momentHtml = momentTime.calendar();
+          break;
+        case "fromNow":
+          momentHtml = momentTime.fromNow();
+          break;
+        case "format":
+          momentHtml = momentTime.format($el.attr('data-customfmt'));
+          break;
+        default:
+          momentHtml = momentTime.fromNow();
+      }
+      $el.html(momentHtml);
+    }
+
+    var momentApplyAbsoluteFmtEl = function($el, momentTime){
+      var momentHtml = momentTime.format('DD/MM/YYYY, hh:mm:ss');
+      $el.html(momentHtml);
+    }
+
+    var momentApplyCustomFmt = function(){
+      $("[data-date]").each(function(k, el){
+          var $el = $(el);
+          var momentTime = moment(new Date($el.attr('data-date')));
+          momentApplyCustomFmtEl($el, momentTime);
+          $el.attr('title', momentTime.format('dddd, MMMM Do YYYY, h:mm:ss a'));
+          $el.attr('alt', momentTime.format('dddd, MMMM Do YYYY, h:mm:ss a'));
+      });
+    }
+
+    var momentApplyAbsoluteFmt = function(){
+      $("[data-date]").each(function(k, el){
+          var $el = $(el);
+          var momentTime = moment(new Date($el.attr('data-date')));
+          momentApplyAbsoluteFmtEl($el, momentTime);
+          $el.attr('title', momentTime.format('dddd, MMMM Do YYYY, h:mm:ss a'));
+          $el.attr('alt', momentTime.format('dddd, MMMM Do YYYY, h:mm:ss a'));
+      });
+    }
+
+    return {
+      applyCustomFmt : momentApplyCustomFmt,
+      applyAbsoluteFmt : momentApplyAbsoluteFmt,
+    };
+  })();
+
+  momentFlaskFront.applyCustomFmt();
+
+  $('#moment-absolute').click(function(){momentFlaskFront.applyAbsoluteFmt()});
+  $('#moment-relative').click(function(){
+    momentFlaskFront.applyCustomFmt()
+  });
+  </script>
+{% endblock %}

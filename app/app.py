@@ -35,22 +35,22 @@ class momentjs(object):
     def __init__(self, timestamp):
         self.timestamp = timestamp
 
-    def render(self, format):
-        # return Markup("<span data-date=\"%s\" data-format=\"%s\"></span>"
-        #               % (self.timestamp.strftime("%Y-%m-%dT%H:%M:%S Z"),
-        #                  format))
-        return Markup("<span data-date=\"%s\" data-format=\"%s\"></span>"
+    def render(self, format, customfmt=""):
+        return Markup("<span data-date=\"%s\" \
+                        data-format=\"%s\" \
+                        data-customfmt=\"%s\"></span>"
                       % (self.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                         format))
+                         format,
+                         customfmt))
 
     def format(self, fmt):
-        return self.render("format(\"%s\")" % fmt)
+        return self.render("format", "%s" % fmt)
 
     def calendar(self):
-        return self.render("calendar()")
+        return self.render("calendar")
 
     def fromNow(self):
-        return self.render("fromNow()")
+        return self.render("fromNow")
 
 
 class UserAdmin(sqla.ModelView):
@@ -132,28 +132,13 @@ class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora', )
     column_list = list = ('fecha_hora', 'Lugar', 'Usuario',
                           'Usuario.codigo', 'Computadora', 'TipoRegistro')
-    with app.test_request_context():
-        momentEsRoute = 'bower_components/moment/locale/es.js'
-        momentRoute = 'bower_components/moment/min/moment.min.js'
-        extra_js = [url_for('static', filename=momentRoute),
-                    url_for('static', filename=momentEsRoute)]
-    # FIXME: se tiene que obtener el formato (en este caso fromNow) de
-    # data-format
-    extra_js_code = [Markup('moment.locale(\'es\');\
-$("[data-date]").each(function(k, el){\
-    var $el = $(el);\
-    var momentTime = moment(new Date($el.attr(\'data-date\')));\
-    $el.html(momentTime.fromNow());\
-    $el.attr(\'title\', momentTime.format(\'dddd, MMMM Do YYYY, h:mm:ss a\'));\
-    $el.attr(\'alt\', momentTime.format(\'dddd, MMMM Do YYYY, h:mm:ss a\'));\
-})')]
     # can_create = False
     can_edit = False
     can_delete = False
 
     with app.test_request_context():
         column_formatters = {'fecha_hora': lambda v, c, m,
-                             p: momentjs(m.fecha_hora).calendar(),
+                             p: momentjs(m.fecha_hora).fromNow(),
                              'Usuario.codigo': lambda v, c, m, p: Markup(
                                     "<a href='%s'>%s</a>" % (
                                         url_for('registro.index_view',
@@ -162,6 +147,8 @@ $("[data-date]").each(function(k, el){\
                              }
 
     column_filters = ['fecha_hora', 'Usuario.email', 'Usuario.codigo']
+
+    list_template = 'admin/list_moment.html'
 
     def is_accessible(self):
         return current_user.has_role('admin')
