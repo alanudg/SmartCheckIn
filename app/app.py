@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, flash, Markup, url_for
+from flask import render_template, flash, Markup, url_for, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import Required, Length, DataRequired
@@ -128,6 +128,15 @@ class ComputadoraAdmin(sqla.ModelView):
         return current_user.has_role('admin')
 
 
+def render_link(v, c, m, p, key, value, text):
+    args = [key+'='+value]
+    for arg in filter(lambda x: x != key, request.args):
+        args.append(arg + '=' + request.args[arg])
+    return Markup("<a href='%s'>%s</a>" % (
+                   url_for('registro.index_view') + '?' + '&'.join(args),
+                   text))
+
+
 class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora', )
     column_list = list = ('fecha_hora', 'Lugar', 'Usuario',
@@ -137,16 +146,22 @@ class RegistroAdmin(sqla.ModelView):
     can_delete = False
 
     with app.test_request_context():
-        column_formatters = {'fecha_hora': lambda v, c, m,
-                             p: momentjs(m.fecha_hora).fromNow(),
-                             'Usuario.codigo': lambda v, c, m, p: Markup(
-                                    "<a href='%s'>%s</a>" % (
-                                        url_for('registro.index_view',
-                                                flt0_9=m.Usuario.email),
-                                        m.Usuario.codigo))
-                             }
+        column_formatters = {
+            'fecha_hora': lambda v, c, m, p: momentjs(m.fecha_hora).fromNow(),
+            'Usuario.codigo': (lambda v, c, m, p:
+                               render_link(v, c, m, p,
+                                           'flt3_23',
+                                           m.Usuario.codigo,
+                                           m.Usuario.codigo)),
+            'Lugar': (lambda v, c, m, p:
+                      render_link(v, c, m, p,
+                                  'flt2_9',
+                                  m.Lugar.nombre,
+                                  m.Lugar.nombre)),
+             }
 
-    column_filters = ['fecha_hora', 'Usuario.email', 'Usuario.codigo']
+    column_filters = ['fecha_hora', 'Lugar.nombre', 'Usuario.email',
+                      'Usuario.codigo', 'TipoRegistro']
 
     list_template = 'admin/list_moment.html'
 
