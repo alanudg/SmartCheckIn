@@ -16,8 +16,7 @@ from models.Ocupacion import Ocupacion
 from models.Lugar import Lugar
 from models.Computadora import Computadora
 from models.Registro import Registro
-from flask_admin.contrib import sqla
-from flask_admin.contrib import geoa
+from flask_admin.contrib import sqla, geoa
 from flask_admin import Admin
 
 app = config.app
@@ -150,18 +149,39 @@ class RegistroAdmin(sqla.ModelView):
             'fecha_hora': lambda v, c, m, p: momentjs(m.fecha_hora).fromNow(),
             'Usuario.codigo': (lambda v, c, m, p:
                                render_link(v, c, m, p,
-                                           'flt3_23',
+                                           'flt2_23',
                                            m.Usuario.codigo,
                                            m.Usuario.codigo)),
             'Lugar': (lambda v, c, m, p:
                       render_link(v, c, m, p,
-                                  'flt2_9',
+                                  'flt0_9',
                                   m.Lugar.nombre,
                                   m.Lugar.nombre)),
+            'Usuario': (lambda v, c, m, p:
+                        render_link(v, c, m, p,
+                                    'flt1_16',
+                                    m.Usuario.email,
+                                    m.Usuario.email)),
+            'Computadora': (lambda v, c, m, p:
+                            render_link(v, c, m, p,
+                                        'flt3_30',
+                                        m.Computadora.nombre,
+                                        m.Computadora.nombre)
+                            if m.Computadora is not None else
+                            render_link(v, c, m, p,
+                                        'flt5_32',
+                                        '1',
+                                        'NULL')
+                            ),
+            'TipoRegistro': (lambda v, c, m, p:
+                             render_link(v, c, m, p,
+                                         'flt6_37',
+                                         m.TipoRegistro.nombre,
+                                         m.TipoRegistro.nombre)),
              }
 
     column_filters = ['fecha_hora', 'Lugar.nombre', 'Usuario.email',
-                      'Usuario.codigo', 'TipoRegistro']
+                      'Usuario.codigo', 'Computadora', 'TipoRegistro']
 
     list_template = 'admin/list_moment.html'
 
