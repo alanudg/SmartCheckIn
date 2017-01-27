@@ -1,22 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, flash, Markup, url_for, request
+from flask import render_template, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField
+from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import Required, Length, DataRequired
 # from flask_mongoengine import MongoEngine
-from flask_security import utils, current_user
 from flask_security.core import UserMixin, AnonymousUser
 import config
-import random
 from db import user_datastore
-from utils import db_utils
-from models.Usuario import Usuario
-from models.Rol import Rol
-from models.Ocupacion import Ocupacion
-from models.Lugar import Lugar
-from models.Computadora import Computadora
-from models.Registro import Registro
-from flask_admin.contrib import sqla, geoa
+from utils import db_utils, admin_utils
 from flask_admin import Admin
 
 app = config.app
@@ -29,178 +20,13 @@ def create_db():
     db_utils.create_sample_db(db_sql, user_datastore)
 
 
-class momentjs(object):
-    # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiii-dates-and-times
-    def __init__(self, timestamp):
-        self.timestamp = timestamp
-
-    def render(self, format, customfmt=""):
-        return Markup("<span data-date=\"%s\" \
-                        data-format=\"%s\" \
-                        data-customfmt=\"%s\"></span>"
-                      % (self.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                         format,
-                         customfmt))
-
-    def format(self, fmt):
-        return self.render("format", "%s" % fmt)
-
-    def calendar(self):
-        return self.render("calendar")
-
-    def fromNow(self):
-        return self.render("fromNow")
-
-
-class UserAdmin(sqla.ModelView):
-
-    column_exclude_list = list = ('password', )
-
-    form_excluded_columns = ('password', 'nip', 'registro_id', 'last_login_at',
-                             'current_login_at', 'last_login_ip',
-                             'current_login_at', 'login_count', 'confirmed_at',
-                             'current_login_ip')
-
-    # Automatically display human-readable names for the current and available
-    # Roles when creating or editing a User
-    column_auto_select_related = True
-
-    column_searchable_list = (Usuario.email,)
-
-    form_args = dict(
-        roles=dict(
-            default=(None, 'end-user'),
-        ),
-        ocupacion=dict(
-            label=u'Ocupación',
-        ),
-    )
-
-    def is_accessible(self):
-        return current_user.has_role('admin')
-
-    def scaffold_form(self):
-        form_class = super(UserAdmin, self).scaffold_form()
-
-        form_class.password2 = PasswordField('Password')
-        return form_class
-
-    def on_model_change(self, form, model, is_created):
-        if len(model.password2):
-            model.password = utils.encrypt_password(model.password2)
-        if(is_created):
-            model.nip = random.randint(1111, 9999)
-            # https://realpython.com/blog/python/handling-email-confirmation-in-flask/
-
-        flash(Markup(u"Se envió un correo a: <b>" + str(model.email) + "</b>" +
-                     u"<br>Código: <b>" + str(model.codigo) + "</b>" +
-                     u"<br>Nip: <b>" + str(model.nip) + "</b>"))
-
-
-class RoleAdmin(sqla.ModelView):
-    def is_accessible(self):
-        return current_user.has_role('admin')
-
-
-class OcupacionAdmin(sqla.ModelView):
-    form_excluded_columns = list = ('usuarios',)
-
-    def is_accessible(self):
-        return current_user.has_role('admin')
-
-
-class LugarAdmin(geoa.ModelView):
-
-    list_template = 'admin/Lugar/list.html'
-    create_template = 'admin/Lugar/create.html'
-    edit_template = 'admin/Lugar/edit.html'
-    form_excluded_columns = list = ('computadora_id', 'registro_id', )
-
-    def is_accessible(self):
-        return current_user.has_role('admin')
-
-
-class ComputadoraAdmin(sqla.ModelView):
-    form_excluded_columns = list = ('registro_id', )
-
-    def is_accessible(self):
-        return current_user.has_role('admin')
-
-
-def render_link(v, c, m, p, key, value, text):
-    args = [key+'='+value]
-    for arg in filter(lambda x: x != key, request.args):
-        args.append(arg + '=' + request.args[arg])
-    return Markup("<a href='%s'>%s</a>" % (
-                   url_for('registro.index_view') + '?' + '&'.join(args),
-                   text))
-
-
-class RegistroAdmin(sqla.ModelView):
-    form_excluded_columns = list = ('fecha_hora', )
-    column_list = list = ('fecha_hora', 'Lugar', 'Usuario',
-                          'Usuario.codigo', 'Computadora', 'TipoRegistro')
-    # can_create = False
-    can_edit = False
-    can_delete = False
-
-    with app.test_request_context():
-        column_formatters = {
-            'fecha_hora': lambda v, c, m, p: momentjs(m.fecha_hora).fromNow(),
-            'Usuario.codigo': (lambda v, c, m, p:
-                               render_link(v, c, m, p,
-                                           'flt2_23',
-                                           m.Usuario.codigo,
-                                           m.Usuario.codigo)),
-            'Lugar': (lambda v, c, m, p:
-                      render_link(v, c, m, p,
-                                  'flt0_9',
-                                  m.Lugar.nombre,
-                                  m.Lugar.nombre)),
-            'Usuario': (lambda v, c, m, p:
-                        render_link(v, c, m, p,
-                                    'flt1_16',
-                                    m.Usuario.email,
-                                    m.Usuario.email)),
-            'Computadora': (lambda v, c, m, p:
-                            render_link(v, c, m, p,
-                                        'flt3_30',
-                                        m.Computadora.nombre,
-                                        m.Computadora.nombre)
-                            if m.Computadora is not None else
-                            render_link(v, c, m, p,
-                                        'flt5_32',
-                                        '1',
-                                        'NULL')
-                            ),
-            'TipoRegistro': (lambda v, c, m, p:
-                             render_link(v, c, m, p,
-                                         'flt6_37',
-                                         m.TipoRegistro.nombre,
-                                         m.TipoRegistro.nombre)),
-             }
-
-    column_filters = ['fecha_hora', 'Lugar.nombre', 'Usuario.email',
-                      'Usuario.codigo', 'Computadora', 'TipoRegistro']
-
-    list_template = 'admin/list_moment.html'
-
-    def is_accessible(self):
-        return current_user.has_role('admin')
-
-
 # Initialize Flask-Admin
 admin = Admin(app,
               template_mode='bootstrap3',
               base_template='/admin/my_index.html',
               url='/admin')
 
-admin.add_view(UserAdmin(Usuario, db_sql.session))
-admin.add_view(RoleAdmin(Rol, db_sql.session))
-admin.add_view(OcupacionAdmin(Ocupacion, db_sql.session))
-admin.add_view(LugarAdmin(Lugar, db_sql.session))
-admin.add_view(ComputadoraAdmin(Computadora, db_sql.session))
-admin.add_view(RegistroAdmin(Registro, db_sql.session))
+admin_utils.load_model_views(admin, db_sql)
 
 
 class user_role_form(FlaskForm):
