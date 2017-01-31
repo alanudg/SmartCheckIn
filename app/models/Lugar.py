@@ -1,9 +1,11 @@
 from app.config import db_sql as db
+from app.utils.key_utils import generate_key
 from geoalchemy2.types import Geometry
 
 
 class Lugar(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(15), default=generate_key)
     nombre = db.Column(db.String(20), nullable=False, unique=True)
     coordenadas = db.Column(Geometry("POLYGON"))
     hora_apertura = db.Column(db.Time)
