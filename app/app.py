@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, flash
+from flask import render_template, flash, redirect, url_for, request
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import Required, Length, DataRequired
@@ -7,8 +8,9 @@ from wtforms.validators import Required, Length, DataRequired
 from flask_security.core import UserMixin, AnonymousUser
 import config
 from db import user_datastore
-from utils import db_utils, admin_utils
+from utils import db_utils, admin_utils, key_utils
 from flask_admin import Admin
+from models import Lugar
 
 app = config.app
 db_sql = config.db_sql
@@ -67,6 +69,63 @@ def home():
     if user.is_anonymous:
         user = AnonymousUser
     return render_template('index.html', user=user)
+
+
+class registra_entrada_salida_lugar(FlaskForm):
+    codigo = StringField(u'Código', validators=[DataRequired])
+    # TODO: El nip tiene que ser tipo password
+    nip = StringField(u'Nip', validators=[DataRequired])
+    submit = SubmitField(label="Check")
+
+
+@app.route('/enlace_lugar', methods=['GET', 'POST'])
+def enlace_lugar():
+    key = request.args.get('key')
+    id = request.args.get('id')
+    query = db_sql.session.query(Lugar.id, Lugar.nombre).filter(
+        (Lugar.id == id) & (Lugar.key == str(key))
+    )
+    if query.count() > 0:
+        lugar = query.first()
+        nombre = lugar.nombre
+        if current_user.is_authenticated:
+            flash(u'Evento en el lugar con id: ' + str(id) + str(lugar.nombre))
+        else:
+            formulario = registra_entrada_salida_lugar()
+            # TODO: Validar codigo y nip del usuario
+            if formulario.validate_on_submit():
+                pass
+            else:
+                pass
+            # TODO: En enlace_lugar, poner QR?
+            return render_template('enlace_lugar.html',
+                                   id=id,
+                                   key=key,
+                                   nombre=nombre,
+                                   form=formulario)
+    else:
+        flash(u'Error de acceso: '+str(id))
+    return render_template('index.html')
+
+
+@app.route('/actualizar_llave_lugar/<id>')
+def actualizar_llave_lugar(id):
+    # TODO: Verificar si el usuario tiene permisos sobre este lugar
+    if current_user.has_role('admin'):
+        db_sql.session.query(Lugar.id).filter(
+            (Lugar.id == id)
+        ).update(
+            {'key': key_utils.generate_key()}
+        )
+        db_sql.session.commit()
+        flash(u'Se actualizó el lugar con id: '+str(id))
+        return redirect(
+                url_for('lugar.index_view') + '?' + '&'.join(request.args)
+                )
+    else:
+        flash(u'No tienes los permisos necesarios para realizar esa acción')
+        # FIXME: no es index, se tiene que crear una vista general
+        return redirect('/')
 
 
 if __name__ == '__main__':
