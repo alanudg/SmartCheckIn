@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from flask_admin.contrib import sqla, geoa
-from app.utils.render_utils import momentjs, render_link
+from app.utils.render_utils import momentjs, render_list_link, render_qr
 from flask_login import current_user
+from flask import Markup, url_for
 from wtforms import PasswordField
 from app.models.Usuario import Usuario
 from app.models.Rol import Rol
@@ -73,7 +74,19 @@ class LugarAdmin(geoa.ModelView):
     create_template = 'admin/Lugar/create.html'
     edit_template = 'admin/Lugar/edit.html'
     form_excluded_columns = list = ('computadora_id', 'registro_id', )
-
+    column_list = ('nombre', 'coordenadas', 'hora_apertura', 'hora_cierre',
+                    'QR', 'key')
+    column_formatters = {
+        'QR': (lambda v, c, m, p:
+                    render_qr(v, c, m, p,
+                              [('id', m.id), ('key', m.key)],
+                              'enlace_lugar')),
+        'key': (lambda v, c, m, p:
+                Markup("%s <a href='%s'>\
+                            <span class='glyphicon glyphicon-refresh'></span>\
+                        </a>" % (m.key, url_for('actualizar_llave_lugar', id=m.id)))
+                )
+    }
     def is_accessible(self):
         return current_user.has_role('admin')
 
@@ -97,33 +110,33 @@ class RegistroAdmin(sqla.ModelView):
     column_formatters = {
         'fecha_hora': lambda v, c, m, p: momentjs(m.fecha_hora).fromNow(),
         'Usuario.codigo': (lambda v, c, m, p:
-                           render_link(v, c, m, p,
+                           render_list_link(v, c, m, p,
                                        'flt2_23',
                                        m.Usuario.codigo,
                                        m.Usuario.codigo)),
         'Lugar': (lambda v, c, m, p:
-                  render_link(v, c, m, p,
+                  render_list_link(v, c, m, p,
                               'flt0_9',
                               m.Lugar.nombre,
                               m.Lugar.nombre)),
         'Usuario': (lambda v, c, m, p:
-                    render_link(v, c, m, p,
+                    render_list_link(v, c, m, p,
                                 'flt1_16',
                                 m.Usuario.email,
                                 m.Usuario.email)),
         'Computadora': (lambda v, c, m, p:
-                        render_link(v, c, m, p,
+                        render_list_link(v, c, m, p,
                                     'flt3_30',
                                     m.Computadora.nombre,
                                     m.Computadora.nombre)
                         if m.Computadora is not None else
-                        render_link(v, c, m, p,
+                        render_list_link(v, c, m, p,
                                     'flt5_32',
                                     '1',
                                     'NULL')
                         ),
         'TipoRegistro': (lambda v, c, m, p:
-                         render_link(v, c, m, p,
+                         render_list_link(v, c, m, p,
                                      'flt6_37',
                                      m.TipoRegistro.nombre,
                                      m.TipoRegistro.nombre)),

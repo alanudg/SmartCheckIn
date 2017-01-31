@@ -24,7 +24,16 @@ class momentjs(object):
         return self.render("fromNow")
 
 
-def render_link(v, c, m, p, key, value, text):
+def render_qr(v, c, m, p, args, to):
+    print m
+    url_args = '&'.join(map(lambda e: e[0]+'='+str(e[1]), args))
+    return Markup("<a href='%s' target='_blank'>\
+                    <i class='fa fa-qrcode glyphicon glyphicon-qrcode'></i>\
+                 </a>"
+                  % (url_for(to) + '?' + url_args))
+
+
+def render_list_link(v, c, m, p, key, value, text):
     args = [key+'='+value]
     for arg in filter(lambda x: x != key, request.args):
         args.append(arg + '=' + request.args[arg])
