@@ -44,6 +44,8 @@ if not ("VCAP_APP_HOST" in os.environ):
     app.config['PORT'] = int(args.port)
     app.config['DEBUG'] = False if args.debug == 'False' else True
     app.config['THREADED'] = False if args.threaded == 'False' else True
+    if str(app.config['PORT']) != '80':
+        app.config['SERVER_NAME'] += ':' + str(app.config['PORT'])
 
 # def main(argv):
 #     try:

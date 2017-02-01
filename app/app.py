@@ -2,7 +2,8 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
+from flask_qrcode import QRcode
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import Required, Length, DataRequired
 # from flask_mongoengine import MongoEngine
 from flask_security.core import UserMixin, AnonymousUser
@@ -29,6 +30,8 @@ admin = Admin(app,
               url='/admin')
 
 admin_utils.load_model_views(admin, db_sql)
+
+qrcode = QRcode(app)
 
 
 class user_role_form(FlaskForm):
@@ -72,9 +75,8 @@ def home():
 
 
 class registra_entrada_salida_lugar(FlaskForm):
-    codigo = StringField(u'Código', validators=[DataRequired])
-    # TODO: El nip tiene que ser tipo password
-    nip = StringField(u'Nip', validators=[DataRequired])
+    codigo = StringField(u'Código', validators=[DataRequired()])
+    nip = PasswordField(u'Nip', validators=[DataRequired()])
     submit = SubmitField(label="Check")
 
 
@@ -88,21 +90,22 @@ def enlace_lugar():
     if query.count() > 0:
         lugar = query.first()
         nombre = lugar.nombre
+        formulario = registra_entrada_salida_lugar()
+
         if current_user.is_authenticated:
             flash(u'Evento en el lugar con id: ' + str(id) + str(lugar.nombre))
         else:
-            formulario = registra_entrada_salida_lugar()
             # TODO: Validar codigo y nip del usuario
             if formulario.validate_on_submit():
-                pass
+                print 'After submit'
             else:
-                pass
+                print 'Before submit'
             # TODO: En enlace_lugar, poner QR?
-            return render_template('enlace_lugar.html',
-                                   id=id,
-                                   key=key,
-                                   nombre=nombre,
-                                   form=formulario)
+        return render_template('enlace_lugar.html',
+                               id=id,
+                               key=key,
+                               nombre=nombre,
+                               form=formulario)
     else:
         flash(u'Error de acceso: '+str(id))
     return render_template('index.html')

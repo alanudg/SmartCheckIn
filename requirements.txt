@@ -4,6 +4,7 @@ Flask-Admin
 Flask-SQLAlchemy
 Flask-MongoEngine
 flask-bootstrap
+Flask-QRcode
 geoalchemy2
 shapely
 psycopg2

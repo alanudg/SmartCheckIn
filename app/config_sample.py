@@ -39,6 +39,8 @@ app.config['HOST'] = '127.0.0.1' if "VCAP_APP_HOST" in os.environ \
 
 app.config['DEBUG'] = True if "VCAP_APP_HOST" in os.environ else True
 
+app.config['SERVER_NAME'] = 'localhost'
+
 # # MongoDB Config
 if 'VCAP_SERVICES' in os.environ:
     mongodbService = json.loads(os.environ['VCAP_SERVICES'])['mongodb'][0]
