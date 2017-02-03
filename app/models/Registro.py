@@ -4,6 +4,8 @@ from datetime import datetime
 
 class Registro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    fecha_hora = db.Column(db.DateTime, default=datetime.utcnow)
+    activo = db.Column(db.Boolean, nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'),
                            nullable=False)
     lugar_id = db.Column(db.Integer, db.ForeignKey('lugar.id'),
@@ -16,7 +18,6 @@ class Registro(db.Model):
     # Puede no pertenecer al registro de una computadora porque puede ser
     # el registro de una entrada/salida
     computadora_id = db.Column(db.Integer, db.ForeignKey('computadora.id'))
-    fecha_hora = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __unicode__(self):
         return self.id

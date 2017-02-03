@@ -11,7 +11,7 @@ import config
 from db import user_datastore
 from utils import db_utils, admin_utils, key_utils
 from flask_admin import Admin
-from models import Lugar
+from models import Lugar, Usuario, Registro
 
 app = config.app
 db_sql = config.db_sql
@@ -83,31 +83,47 @@ class registra_entrada_salida_lugar(FlaskForm):
 @app.route('/enlace_lugar', methods=['GET', 'POST'])
 def enlace_lugar():
     key = request.args.get('key')
-    id = request.args.get('id')
+    id_lugar = request.args.get('id')
     query = db_sql.session.query(Lugar.id, Lugar.nombre).filter(
-        (Lugar.id == id) & (Lugar.key == str(key))
+        (Lugar.id == id_lugar) & (Lugar.key == str(key))
     )
     if query.count() > 0:
         lugar = query.first()
         nombre = lugar.nombre
-        formulario = registra_entrada_salida_lugar()
+        formulario = registra_entrada_salida_lugar(csrf_enabled=False)
 
         if current_user.is_authenticated:
-            flash(u'Evento en el lugar con id: ' + str(id) + str(lugar.nombre))
+            flash(u'Evento en el lugar con id: ' + str(id_lugar) +
+                  str(lugar.nombre))
         else:
             # TODO: Validar codigo y nip del usuario
             if formulario.validate_on_submit():
-                print 'After submit'
-            else:
-                print 'Before submit'
-            # TODO: En enlace_lugar, poner QR?
+                codigo = formulario.codigo.data
+                nip = formulario.nip.data
+                usuario = db_sql.session.query(Usuario.nip, Usuario.id).filter(
+                    (Usuario.codigo == codigo)
+                )
+                if(usuario.count() > 0):
+                    usuario = usuario.first()
+                    if(usuario.nip == nip):
+                        lugar_activo = db_sql.session.query(Registro)\
+                            .filter((Usuario.id == usuario.id) &
+                                    (Registro.activo))
+                        if(lugar_activo.count() > 0):
+                            pass
+                    else:
+                        flash(u'Error en el nip del usuario',
+                              category='warning')
+                else:
+                    flash(u'No existe un usuario con el código: ' + str(codigo)
+                          ,category='warning')
         return render_template('enlace_lugar.html',
                                id=id,
                                key=key,
                                nombre=nombre,
                                form=formulario)
     else:
-        flash(u'Error de acceso: '+str(id))
+        flash(u'Error de acceso: '+str(id_lugar))
     return render_template('index.html')
 
 
