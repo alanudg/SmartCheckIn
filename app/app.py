@@ -96,7 +96,6 @@ def enlace_lugar():
             flash(u'Evento en el lugar con id: ' + str(id_lugar) +
                   str(lugar.nombre))
         else:
-            # TODO: Validar codigo y nip del usuario
             if formulario.validate_on_submit():
                 codigo = formulario.codigo.data
                 nip = formulario.nip.data
@@ -108,9 +107,39 @@ def enlace_lugar():
                     if(usuario.nip == nip):
                         lugar_activo = db_sql.session.query(Registro)\
                             .filter((Usuario.id == usuario.id) &
-                                    (Registro.activo))
+                                    (Registro.activo) &
+                                    (Registro.tipo_registro_id ==
+                                        config.ID_ENTRADA_LUGAR))
                         if(lugar_activo.count() > 0):
-                            pass
+                            comp_activa = db_sql.session.query(Registro)\
+                                .filter((Usuario.id == usuario.id) &
+                                        (Registro.activo) &
+                                        (Registro.tipo_registro_id ==
+                                            config.ID_TOMA_COMPUTADORA))
+                            if(comp_activa.count() > 0):
+                                flash(u'Tienes una computadora sin entregar',
+                                      category='warning')
+                            else:
+                                lugar_activo.first().activo = False
+                                salida = Registro(usuario_id=usuario.id,
+                                                  lugar_id=lugar.id,
+                                                  tipo_registro_id=
+                                                  config.ID_SALIDA_LUGAR,
+                                                  activo=False)
+                                db_sql.session.add(salida)
+                                db_sql.session.commit()
+                                flash(u'Usuario salió de lugar',
+                                      category='success')
+                        else:
+                            entrada = Registro(usuario_id=usuario.id,
+                                              lugar_id=lugar.id,
+                                              tipo_registro_id=
+                                              config.ID_ENTRADA_LUGAR,
+                                              activo=True)
+                            db_sql.session.add(entrada)
+                            db_sql.session.commit()
+                            flash(u'Usuario entró a lugar',
+                                  category='success')
                     else:
                         flash(u'Error en el nip del usuario',
                               category='warning')
