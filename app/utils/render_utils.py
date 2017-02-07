@@ -25,7 +25,6 @@ class momentjs(object):
 
 
 def render_qr(v, c, m, p, args, to):
-    print m
     url_args = '&'.join(map(lambda e: e[0]+'='+str(e[1]), args))
     return Markup("<a href='%s' target='_blank'>\
                     <i class='fa fa-qrcode glyphicon glyphicon-qrcode'></i>\

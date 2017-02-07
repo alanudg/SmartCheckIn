@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from app.models import Ocupacion, Lugar, Computadora, TipoRegistro, Registro
+from app.config import ID_ENTRADA_LUGAR, ID_SALIDA_LUGAR, ID_TOMA_COMPUTADORA,\
+                       ID_DEJA_COMPUTADORA
 from flask_security import utils
 
 
@@ -15,10 +17,12 @@ def create_sample_db(db_sql, user_datastore):
     db_sql.drop_all()
     db_sql.create_all()
 
-    tipo_registro_entrada = TipoRegistro(nombre='Entrada')
-    tipo_registro_salida = TipoRegistro(nombre='Salida')
-    tipo_registro_toma_comp = TipoRegistro(nombre='Toma')
-    tipo_registro_deja_comp = TipoRegistro(nombre='Deja')
+    tipo_registro_entrada = TipoRegistro(nombre='Entrada', id=ID_ENTRADA_LUGAR)
+    tipo_registro_salida = TipoRegistro(nombre='Salida', id=ID_SALIDA_LUGAR)
+    tipo_registro_toma_comp = TipoRegistro(nombre='Toma',
+                                           id=ID_TOMA_COMPUTADORA)
+    tipo_registro_deja_comp = TipoRegistro(nombre='Deja',
+                                           id=ID_DEJA_COMPUTADORA)
 
     ocup_alumno = Ocupacion(nombre='Alumno',
                             descripcion='Alumno perteneciente al CUCEA')
@@ -77,28 +81,4 @@ def create_sample_db(db_sql, user_datastore):
     user_datastore.add_role_to_user('alan', 'end-user')
     user_datastore.add_role_to_user('admin', 'admin')
     user_datastore.add_role_to_user('admin', 'end-user')
-    db_sql.session.commit()
-
-    #
-    # https://gist.github.com/skyuplam/ffb1b5f12d7ad787f6e4
-    #
-    usuario_prueba = user_datastore.get_user('alan')
-    registro_entrada_cici = Registro(usuario_id=usuario_prueba.id,
-                                     lugar_id=l_cici.id,
-                                     tipo_registro_id=tipo_registro_entrada.id)
-    registro_toma = Registro(usuario_id=usuario_prueba.id,
-                             lugar_id=l_cici.id,
-                             tipo_registro_id=tipo_registro_toma_comp.id,
-                             computadora_id=computadora.id)
-    registro_deja = Registro(usuario_id=usuario_prueba.id,
-                             lugar_id=l_cici.id,
-                             tipo_registro_id=tipo_registro_deja_comp.id,
-                             computadora_id=computadora.id)
-    registro_salida_cici = Registro(usuario_id=usuario_prueba.id,
-                                    lugar_id=l_cici.id,
-                                    tipo_registro_id=tipo_registro_salida.id)
-    db_sql.session.add(registro_entrada_cici)
-    db_sql.session.add(registro_toma)
-    db_sql.session.add(registro_deja)
-    db_sql.session.add(registro_salida_cici)
     db_sql.session.commit()
