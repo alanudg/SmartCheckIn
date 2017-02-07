@@ -6,6 +6,11 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
+
+ID_ENTRADA_LUGAR = 1
+ID_SALIDA_LUGAR = 2
+ID_TOMA_COMPUTADORA = 3
+ID_DEJA_COMPUTADORA = 4
 #
 # Create app
 app = Flask(__name__)
