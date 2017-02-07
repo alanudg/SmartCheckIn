@@ -102,7 +102,7 @@ class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora', )
     column_list = list = ('fecha_hora', 'Lugar', 'Usuario',
                           'Usuario.codigo', 'Computadora', 'TipoRegistro')
-    # can_create = False
+    can_create = False
     can_edit = False
     can_delete = False
 
