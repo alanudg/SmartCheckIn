@@ -10,7 +10,7 @@ from flask_login import current_user
 from app.models import Lugar, Usuario, Registro
 
 
-class registra_entrada_salida_lugar(FlaskForm):
+class check_lugar_form(FlaskForm):
     codigo = StringField(u'Código', validators=[DataRequired()])
     nip = PasswordField(u'Nip', validators=[DataRequired()])
     submit = SubmitField(label="Check")
@@ -19,77 +19,136 @@ class registra_entrada_salida_lugar(FlaskForm):
 mod_lugar = Blueprint('check_lugar', __name__, url_prefix='/lugar')
 
 
+class CheckLugar():
+    def __init__(self, id_lugar, key):
+        self.id_lugar = int(id_lugar)
+        self.key = str(key)
+        self.lugar = None
+        self.usuario = None
+        self.lugar_activo = None
+
+        self.obten_lugar()
+
+    def obten_lugar(self):
+        query = db_sql.session.query(Lugar.id, Lugar.nombre).filter(
+            (Lugar.id == self.id_lugar) & (Lugar.key == str(self.key))
+        )
+        if query.count() > 0:
+            self.lugar = query.first()
+        else:
+            self.lugar = None
+
+    def lugar_valido(self):
+        return self.lugar is not None
+
+    def obten_lugar_activo(self):
+        lugar_activo = db_sql.session.query(Registro).filter(
+            (Usuario.id == self.usuario.id) &
+            (Registro.activo) &
+            (Registro.tipo_registro_id == config.ID_ENTRADA_LUGAR)
+        )
+        if(lugar_activo.count() > 0):
+            return lugar_activo.first()
+
+    def registra_entrada(self):
+        entrada = Registro(usuario_id=self.usuario.id,
+                           lugar_id=self.lugar.id,
+                           tipo_registro_id=config.ID_ENTRADA_LUGAR,
+                           activo=True)
+        db_sql.session.add(entrada)
+        db_sql.session.commit()
+
+    def registra_salida(self):
+        self.lugar_activo.activo = False
+        salida = Registro(usuario_id=self.usuario.id,
+                          lugar_id=self.lugar.id,
+                          tipo_registro_id=config.ID_SALIDA_LUGAR,
+                          activo=False)
+        db_sql.session.add(salida)
+        db_sql.session.commit()
+
+    def computadora_activa(self):
+        c_activa = db_sql.session.query(Registro).filter(
+            (Usuario.id == self.usuario.id) &
+            (Registro.activo) &
+            (Registro.tipo_registro_id == config.ID_TOMA_COMPUTADORA)
+        )
+        return c_activa.count() > 0
+
+    def valida_entrada(self):
+        if(self.lugar_activo.lugar_id == int(self.id_lugar)):
+            if(self.computadora_activa()):
+                return True, {'text': u'Tienes una computadora sin entregar',
+                              'category': 'warning'}
+            else:
+                self.registra_salida()
+                return True, {'text': u'Usuario salió de lugar',
+                              'category': 'success'}
+        else:
+            # TODO verificar si el lugar al que quiere entrar es "hijo" del
+            # lugar donde se encuentra activo
+            return False, {'text': u'Tienes una entrada activa en otro \
+                                     lugar',
+                           'category': 'warning'}
+
+    def valida_entrada_salida_lugar(self):
+        self.lugar_activo = self.obten_lugar_activo()
+        if(self.lugar_activo is not None):
+            return self.valida_entrada()
+        else:
+            self.registra_entrada()
+            return True, {'text': u'Usuario entró a lugar',
+                          'category': 'success'}
+
+    def usuario_valido(self, codigo, nip):
+        query = db_sql.session.query(Usuario.nip, Usuario.id).filter(
+            (Usuario.codigo == codigo)
+        )
+        if(query.count() > 0):
+            usuario = query.first()
+            if(usuario.nip == nip):
+                self.usuario = usuario
+                return True, {}
+            else:
+                return False, {'text': u'Error en el nip del usuario',
+                               'category': 'warning'}
+        else:
+            return False, {'text': u'No existe un usuario con el código: ' +
+                           str(codigo),
+                           'category': 'warning'}
+
+    def valida_formulario(self, formulario):
+        codigo = formulario.codigo.data
+        nip = formulario.nip.data
+        usuario_valido, res = self.usuario_valido(codigo, nip)
+        if(usuario_valido):
+            entrada_salida_valida, res = self.valida_entrada_salida_lugar()
+        return res
+
+
 @mod_lugar.route('/enlace_lugar', methods=['GET', 'POST'])
 def enlace_lugar():
     key = request.args.get('key')
     id_lugar = request.args.get('id')
-    query = db_sql.session.query(Lugar.id, Lugar.nombre).filter(
-        (Lugar.id == id_lugar) & (Lugar.key == str(key))
-    )
-    if query.count() > 0:
-        lugar = query.first()
-        nombre = lugar.nombre
-        formulario = registra_entrada_salida_lugar(csrf_enabled=False)
+    check_lugar = CheckLugar(id_lugar, key)
+    print check_lugar.lugar
+    if check_lugar.lugar_valido():
+        formulario = check_lugar_form(csrf_enabled=False)
 
         if current_user.is_authenticated:
             flash(u'Evento en el lugar con id: ' + str(id_lugar) +
-                  str(lugar.nombre))
+                  str(check_lugar.lugar.nombre))
         else:
             if formulario.validate_on_submit():
-                codigo = formulario.codigo.data
-                nip = formulario.nip.data
-                usuario = db_sql.session.query(Usuario.nip, Usuario.id).filter(
-                    (Usuario.codigo == codigo)
-                )
-                if(usuario.count() > 0):
-                    usuario = usuario.first()
-                    if(usuario.nip == nip):
-                        lugar_activo = db_sql.session.query(Registro)\
-                            .filter((Usuario.id == usuario.id) &
-                                    (Registro.activo) &
-                                    (Registro.tipo_registro_id ==
-                                        config.ID_ENTRADA_LUGAR))
-                        if(lugar_activo.count() > 0):
-                            comp_activa = db_sql.session.query(Registro)\
-                                .filter((Usuario.id == usuario.id) &
-                                        (Registro.activo) &
-                                        (Registro.tipo_registro_id ==
-                                            config.ID_TOMA_COMPUTADORA))
-                            if(comp_activa.count() > 0):
-                                flash(u'Tienes una computadora sin entregar',
-                                      category='warning')
-                            else:
-                                # TODO ver si esto sirve o no
-                                lugar_activo.first().activo = False
-                                salida = Registro(usuario_id=usuario.id,
-                                                  lugar_id=lugar.id,
-                                                  tipo_registro_id=config.ID_SALIDA_LUGAR,
-                                                  activo=False)
-                                db_sql.session.add(salida)
-                                db_sql.session.commit()
-                                flash(u'Usuario salió de lugar',
-                                      category='success')
-                        else:
-                            entrada = Registro(usuario_id=usuario.id,
-                                               lugar_id=lugar.id,
-                                               tipo_registro_id=config.ID_ENTRADA_LUGAR,
-                                               activo=True)
-                            db_sql.session.add(entrada)
-                            db_sql.session.commit()
-                            flash(u'Usuario entró a lugar',
-                                  category='success')
-                    else:
-                        flash(u'Error en el nip del usuario',
-                              category='warning')
-                else:
-                    flash(u'No existe un usuario con el código: ' +
-                          str(codigo), category='warning')
+                message = check_lugar.valida_formulario(formulario)
+                flash(message['text'], category=message['category'])
+
         # TODO Crear este template (quizás se haga un template 'padre' para las
         #  vistas similares a esta)
-        return render_template('enlace_computadora.html',
+        return render_template('enlace_lugar.html',
                                id=id,
                                key=key,
-                               nombre=nombre,
+                               nombre=check_lugar.lugar.nombre,
                                form=formulario)
     else:
         flash(u'Error de acceso: '+str(id_lugar))
