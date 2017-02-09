@@ -75,7 +75,7 @@ class CheckLugar():
         )
         return c_activa.count() > 0
 
-    def valida_entrada(self):
+    def valida_salida(self):
         if(self.lugar_activo.lugar_id == int(self.id_lugar)):
             if(self.computadora_activa()):
                 return True, {'text': u'Tienes una computadora sin entregar',
@@ -93,12 +93,12 @@ class CheckLugar():
 
     def valida_entrada_salida_lugar(self):
         self.lugar_activo = self.obten_lugar_activo()
-        if(self.lugar_activo is not None):
-            return self.valida_entrada()
-        else:
+        if(self.lugar_activo is None):
             self.registra_entrada()
             return True, {'text': u'Usuario entró a lugar',
                           'category': 'success'}
+        else:
+            return self.valida_salida()
 
     def usuario_valido(self, codigo, nip):
         query = db_sql.session.query(Usuario.nip, Usuario.id).filter(
