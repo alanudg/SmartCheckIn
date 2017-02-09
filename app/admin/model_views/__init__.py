@@ -163,7 +163,7 @@ class RegistroAdmin(sqla.ModelView):
          }
 
     column_filters = ['fecha_hora', 'Lugar.nombre', 'Usuario.email',
-                      'Usuario.codigo', 'Computadora', 'TipoRegistro']
+                      'Usuario.codigo', 'Computadora.nombre', 'TipoRegistro']
 
     list_template = 'admin/list_moment.html'
 
