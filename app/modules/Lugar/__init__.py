@@ -29,6 +29,9 @@ class CheckLugar():
 
         self.obten_lugar()
 
+    def set_usuario(self, usuario):
+        self.usuario = usuario
+
     def obten_lugar(self):
         query = db_sql.session.query(Lugar.id, Lugar.nombre).filter(
             (Lugar.id == self.id_lugar) & (Lugar.key == str(self.key))
@@ -78,24 +81,26 @@ class CheckLugar():
     def valida_salida(self):
         if(self.lugar_activo.lugar_id == int(self.id_lugar)):
             if(self.computadora_activa()):
-                return True, {'text': u'Tienes una computadora sin entregar',
-                              'category': 'warning'}
+                return False, {'text': u'Tienes una computadora sin entregar',
+                               'category': 'warning'}
             else:
                 self.registra_salida()
-                return True, {'text': u'Usuario salió de lugar',
+                return True, {'text': u'Usuario con código: ' +
+                              self.usuario.codigo + u' salió de ' +
+                              self.lugar.nombre,
                               'category': 'success'}
         else:
             # TODO verificar si el lugar al que quiere entrar es "hijo" del
             # lugar donde se encuentra activo
-            return False, {'text': u'Tienes una entrada activa en otro \
-                                     lugar',
+            return False, {'text': u'Tienes una entrada activa en otro lugar',
                            'category': 'warning'}
 
     def valida_entrada_salida_lugar(self):
         self.lugar_activo = self.obten_lugar_activo()
         if(self.lugar_activo is None):
             self.registra_entrada()
-            return True, {'text': u'Usuario entró a lugar',
+            return True, {'text': u'Usuario con código: ' + self.usuario.codigo
+                          + u' entró a ' + self.lugar.nombre,
                           'category': 'success'}
         else:
             return self.valida_salida()
@@ -131,25 +136,25 @@ def enlace_lugar():
     key = request.args.get('key')
     id_lugar = request.args.get('id')
     check_lugar = CheckLugar(id_lugar, key)
-    print check_lugar.lugar
     if check_lugar.lugar_valido():
         formulario = check_lugar_form(csrf_enabled=False)
 
         if current_user.is_authenticated:
-            flash(u'Evento en el lugar con id: ' + str(id_lugar) +
-                  str(check_lugar.lugar.nombre))
+            check_lugar.set_usuario(current_user)
+            e, message = check_lugar.valida_entrada_salida_lugar()
+            flash(message['text'], category=message['category'])
+            return redirect('/')
         else:
             if formulario.validate_on_submit():
                 message = check_lugar.valida_formulario(formulario)
                 flash(message['text'], category=message['category'])
-
-        # TODO Crear este template (quizás se haga un template 'padre' para las
-        #  vistas similares a esta)
-        return render_template('enlace_lugar.html',
-                               id=id,
-                               key=key,
-                               nombre=check_lugar.lugar.nombre,
-                               form=formulario)
+            # TODO Crear este template (quizás se haga un template 'padre'
+            # para las vistas similares a esta)
+            return render_template('enlace_lugar.html',
+                                   id=id,
+                                   key=key,
+                                   nombre=check_lugar.lugar.nombre,
+                                   form=formulario)
     else:
         flash(u'Error de acceso: '+str(id_lugar))
     return render_template('index.html')

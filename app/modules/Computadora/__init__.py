@@ -33,6 +33,9 @@ class CheckComputadora():
 
         self.obten_computadora()
 
+    def set_usuario(self, usuario):
+        self.usuario = usuario
+
     def obten_computadora(self):
         query = db_sql.session.query(Computadora).filter(
             (Computadora.id == self.id_computadora) &
@@ -122,12 +125,18 @@ class CheckComputadora():
                                    'category': 'warning'}
                 else:
                     self.registra_toma()
-                    return True, {'text': u'Usuario tomó computadora',
+                    return True, {'text': u'Usuario con código: ' +
+                                  self.usuario.codigo + u' tomó la máquina ' +
+                                  self.computadora.nombre + '@' +
+                                  self.lugar.nombre,
                                   'category': 'success'}
             else:
                 if(self.reg_comp_act.computadora_id == self.computadora.id):
                     self.registra_deja()
-                    return True, {'text': u'Se desocupó computadora',
+                    return True, {'text': u'Usuario con código: ' +
+                                  self.usuario.codigo + u' dejó la máquina ' +
+                                  self.computadora.nombre + '@' +
+                                  self.lugar.nombre,
                                   'category': 'success'}
                 else:
                     return False, {'text': u'No puedes tener dos \
@@ -169,21 +178,23 @@ def enlace_computadora():
         formulario = check_computadora_form(csrf_enabled=False)
 
         if current_user.is_authenticated:
-            flash(u'Evento en la computadora con id: ' + str(id_computadora) +
-                  str(check_computadora.computadora.nombre))
+            check_computadora.set_usuario(current_user)
+            e, res = check_computadora.valida_toma_deja_computadora()
+            flash(res['text'], category=res['category'])
+            return redirect('/')
         else:
             if formulario.validate_on_submit():
                 message = check_computadora.valida_formulario(formulario)
                 flash(message['text'], category=message['category'])
 
-        # TODO Crear este template (quizás se haga un template 'padre' para las
-        #  vistas similares a esta)
-        return render_template('enlace_computadora.html',
-                               id=id,
-                               key=key,
-                               nombre=check_computadora.computadora.nombre,
-                               nombre_lugar=check_computadora.lugar.nombre,
-                               form=formulario)
+            # TODO Crear este template (quizás se haga un template 'padre'
+            # para las vistas similares a esta)
+            return render_template('enlace_computadora.html',
+                                   id=id,
+                                   key=key,
+                                   nombre=check_computadora.computadora.nombre,
+                                   nombre_lugar=check_computadora.lugar.nombre,
+                                   form=formulario)
     else:
         flash(u'Error de acceso: '+str(id_computadora))
     return render_template('index.html')
