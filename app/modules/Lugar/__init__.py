@@ -106,7 +106,7 @@ class CheckLugar():
             return self.valida_salida()
 
     def usuario_valido(self, codigo, nip):
-        query = db_sql.session.query(Usuario.nip, Usuario.id).filter(
+        query = db_sql.session.query(Usuario).filter(
             (Usuario.codigo == codigo)
         )
         if(query.count() > 0):

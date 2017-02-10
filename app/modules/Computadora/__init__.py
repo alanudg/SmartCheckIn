@@ -144,7 +144,7 @@ class CheckComputadora():
                                    'category': 'warning'}
 
     def usuario_valido(self, codigo, nip):
-        query = db_sql.session.query(Usuario.nip, Usuario.id).filter(
+        query = db_sql.session.query(Usuario).filter(
             (Usuario.codigo == codigo)
         )
         if(query.count() > 0):
@@ -190,7 +190,7 @@ def enlace_computadora():
             # TODO Crear este template (quizás se haga un template 'padre'
             # para las vistas similares a esta)
             return render_template('enlace_computadora.html',
-                                   id=id,
+                                   id=id_computadora,
                                    key=key,
                                    nombre=check_computadora.computadora.nombre,
                                    nombre_lugar=check_computadora.lugar.nombre,
