@@ -151,7 +151,7 @@ def enlace_lugar():
             # TODO Crear este template (quizás se haga un template 'padre'
             # para las vistas similares a esta)
             return render_template('enlace_lugar.html',
-                                   id=id,
+                                   id=id_lugar,
                                    key=key,
                                    nombre=check_lugar.lugar.nombre,
                                    form=formulario)
