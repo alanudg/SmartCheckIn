@@ -5,7 +5,7 @@ from flask_login import current_user
 from flask import Markup, url_for, flash
 from wtforms import PasswordField
 from app.models.Usuario import Usuario
-from werkzeug import utils
+from flask_security import utils
 import random
 
 
