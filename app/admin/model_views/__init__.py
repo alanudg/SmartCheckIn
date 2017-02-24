@@ -13,7 +13,7 @@ class UserAdmin(sqla.ModelView):
 
     column_exclude_list = list = ('password', )
 
-    form_excluded_columns = ('password', 'nip', 'registro_id', 'last_login_at',
+    form_excluded_columns = ('password', 'nip', 'registros', 'last_login_at',
                              'current_login_at', 'last_login_ip',
                              'current_login_at', 'login_count', 'confirmed_at',
                              'current_login_ip')
@@ -119,16 +119,18 @@ class ComputadoraAdmin(sqla.ModelView):
 
 
 class RegistroAdmin(sqla.ModelView):
-    form_excluded_columns = list = ('fecha_hora', )
-    column_list = list = ('fecha_hora', 'Lugar', 'Usuario',
-                          'Usuario.codigo', 'Computadora', 'TipoRegistro')
+    form_excluded_columns = list = ('fecha_hora_entrada', )
+    column_list = list = ('fecha_hora_entrada', 'Lugar', 'Usuario',
+                          'Usuario.codigo', 'Computadora')
     can_create = False
     can_edit = False
     can_delete = False
 
     # with app.test_request_context():
     column_formatters = {
-        'fecha_hora': lambda v, c, m, p: momentjs(m.fecha_hora).fromNow(),
+        'fecha_hora_entrada':
+            lambda v, c, m, p:
+                momentjs(m.fecha_hora_entrada).fromNow(),
         'Usuario.codigo': (lambda v, c, m, p:
                            render_list_link(v, c, m, p,
                                             'flt2_23',
@@ -155,15 +157,10 @@ class RegistroAdmin(sqla.ModelView):
                                          '1',
                                          'NULL')
                         ),
-        'TipoRegistro': (lambda v, c, m, p:
-                         render_list_link(v, c, m, p,
-                                          'flt6_37',
-                                          m.TipoRegistro.nombre,
-                                          m.TipoRegistro.nombre)),
          }
 
-    column_filters = ['fecha_hora', 'Lugar.nombre', 'Usuario.email',
-                      'Usuario.codigo', 'Computadora.nombre', 'TipoRegistro']
+    column_filters = ['fecha_hora_entrada', 'Lugar.nombre', 'Usuario.email',
+                      'Usuario.codigo', 'Computadora.nombre']
 
     list_template = 'admin/list_moment.html'
 

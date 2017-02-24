@@ -27,7 +27,7 @@ class Usuario(db.Model, UserMixin):
     confirmed_at = db.Column(db.DateTime())
     # Relaciones
     id_ocupacion = db.Column(db.Integer, db.ForeignKey('ocupacion.id'))
-    registro_id = db.relationship('Registro', backref='Usuario', lazy=True)
+    registros = db.relationship('Registro', backref='Usuario', lazy=True)
     roles = db.relationship('Rol',
                             secondary=roles_usuarios,
                             backref=db.backref('usuarios',
