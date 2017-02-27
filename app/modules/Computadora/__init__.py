@@ -22,6 +22,14 @@ mod_computadora = Blueprint('check_computadora',
 
 
 class CheckComputadora():
+    """
+    Clase que encapsula el manejo de posesion de Computadoras.
+    :param id_computadora: id de la computadora donde se quiere registrar
+                           el evento
+    :type id_computadora: int
+    :param key: Llave para verificar si el acceso a la computadora es válido
+    :type key: string
+    """
     def __init__(self, id_computadora, key):
         self.id_computadora = int(id_computadora)
         self.key = str(key)
@@ -34,9 +42,22 @@ class CheckComputadora():
         self.obten_computadora()
 
     def set_usuario(self, usuario):
+        """
+        Configura un usuario para después ser usado por otros métodos
+        :param usuario:
+        :type usuario: app.models.Usuario
+        """
         self.usuario = usuario
 
     def obten_computadora(self):
+        """
+        Si existe una Computadora con ese id y esa llave, entonces guarda en
+        self.computadora el objeto Computadora y lo retorna. Además, en caso de
+        encontrar la Computadora, guardará en self.lugar el lugar al que
+        pertenece esa Computadora
+        Si no existe el lugar entonces guardará y retornará None.
+        :return: app.models.Computadora
+        """
         query = db_sql.session.query(Computadora).filter(
             (Computadora.id == self.id_computadora) &
             (Computadora.key == str(self.key))
@@ -44,48 +65,98 @@ class CheckComputadora():
         if query.count() > 0:
             self.computadora = query.first()
             queryLugar = db_sql.session.query(Lugar).filter(
-                (Lugar.id == self.computadora.lugar_id)
+                (Lugar.id == self.computadora.id_lugar)
             )
             self.lugar = queryLugar.first()
         else:
             self.computadora = None
             self.lugar = None
+        return self.computadora
 
     def computadora_valida(self):
+        """
+        Retorna si ya está seteado una computadora válida en el objeto self
+        o no.
+        :return: bool
+        """
         return self.computadora is not None
 
     def obten_lugar_activo(self):
-        lugar_activo = db_sql.session.query(Registro).filter(
-            (Usuario.id == self.usuario.id) &
-            (Registro.activo) &
-            (Registro.tipo_registro_id == config.ID_ENTRADA_LUGAR)
-        )
-        if(lugar_activo.count() > 0):
-            if (lugar_activo.first().id == self.lugar.id):
-                self.lugar_activo = lugar_activo.first()
+        """
+        Obtiene el lugar donde el usuario guardado en self.usuario está activo.
+        En caso de que no tenga un lugar activo retornará None.
+        En caso de que no exista un usuario en self.usuario arrojará una
+        excepción
+        :return: app.models.Registro
+        :raises: ValueError
+        """
+        if self.lugar_activo is None:
+            if self.usuario is None:
+                raise ValueError("self.usuario no ha sido definido, primero llama \
+                                  a self.set_usuario")
+            else:
+                lugar_activo = db_sql.session.query(Registro).filter(
+                    (Usuario.id == self.usuario.id) &
+                    (Registro.fecha_hora_salida.is_(None))
+                )
+                if(lugar_activo.count() > 0):
+                    self.lugar_activo = lugar_activo.first()
+                else:
+                    self.lugar_activo = None
+                return self.lugar_activo
+        else:
+            return self.lugar_activo
 
     def obten_computadora_activa(self):
-        computadora_activa = db_sql.session.query(Registro).filter(
-            (Registro.usuario_id == self.usuario.id) &
-            (Registro.activo) &
-            (Registro.tipo_registro_id == config.ID_TOMA_COMPUTADORA)
-        )
-        if(computadora_activa.count() > 0):
-            self.reg_comp_act = computadora_activa.first()
+        """
+        Obtiene la computadora que está usando el usuario guardado en
+        self.usuario
+        En caso de que no tenga una computadora activa retornará None.
+        En caso de que no exista un usuario en self.usuario arrojará una
+        excepción
+        :return: app.models.Registro
+        :raises: ValueError
+        """
+        if self.reg_comp_act is None:
+            if self.usuario is None:
+                raise ValueError("self.usuario no ha sido definido, primero \
+                                  llama a self.set_usuario")
+            else:
+                if self.lugar_activo is None:
+                    raise ValueError("self.usuario no ha sido definido, \
+                                      primero llama a self.obten_lugar_activo")
+                if self.lugar_activo.fecha_hora_entrega is None:
+                    self.reg_comp_act = self.lugar_activo
+                else:
+                    self.reg_comp_act = None
+                return self.reg_comp_act
+        else:
+            return self.reg_comp_act
 
     def is_otra_computadora_activa(self):
-        computadora_activa = db_sql.session.query(Registro).filter(
-            (Registro.usuario_id == self.usuario.id) &
-            (Registro.computadora_id != self.computadora.id) &
-            (Registro.activo) &
-            (Registro.tipo_registro_id == config.ID_TOMA_COMPUTADORA)
-        )
-        return (computadora_activa.count() > 0)
+        """
+        Retorna si el usuario guardado en self.usuario tiene una computadora
+        activa distinta a la que computadora sobre la cuál se quiere aplicar un
+        evento
+        En caso de que no exista un usuario en self.usuario arrojará una
+        excepción
+        :return: bool
+        :raises: ValueError
+        """
+        if self.usuario is None:
+            raise ValueError("self.usuario no ha sido definido, primero llama \
+                              a self.set_usuario")
+        else:
+            if self.obten_computadora_activa() is None:
+                return False
+            else:
+                return self.reg_comp_act.id_computadora != self.computadora.id
 
     def registra_toma(self):
-        toma = Registro(usuario_id=self.usuario.id,
-                        lugar_id=self.lugar.id,
-                        computadora_id=self.computadora.id,
+        # FIXME
+        toma = Registro(id_usuario=self.usuario.id,
+                        id_lugar=self.lugar.id,
+                        id_computadora=self.computadora.id,
                         tipo_registro_id=config.ID_TOMA_COMPUTADORA,
                         activo=True)
         db_sql.session.add(toma)
@@ -93,9 +164,9 @@ class CheckComputadora():
 
     def registra_deja(self):
         self.reg_comp_act.activo = False
-        deja = Registro(usuario_id=self.usuario.id,
-                        lugar_id=self.lugar.id,
-                        computadora_id=self.computadora.id,
+        deja = Registro(id_usuario=self.usuario.id,
+                        id_lugar=self.lugar.id,
+                        id_computadora=self.computadora.id,
                         tipo_registro_id=config.ID_DEJA_COMPUTADORA,
                         activo=False)
         db_sql.session.add(deja)
@@ -103,8 +174,8 @@ class CheckComputadora():
 
     def computadora_ocupada(self):
         c_ocupada = db_sql.session.query(Registro).filter(
-            (Registro.usuario_id != self.usuario.id) &
-            (Registro.computadora_id == self.computadora.id) &
+            (Registro.id_usuario != self.usuario.id) &
+            (Registro.id_computadora == self.computadora.id) &
             (Registro.activo) &
             (Registro.tipo_registro_id == config.ID_TOMA_COMPUTADORA)
         )
@@ -131,7 +202,7 @@ class CheckComputadora():
                                   self.lugar.nombre,
                                   'category': 'success'}
             else:
-                if(self.reg_comp_act.computadora_id == self.computadora.id):
+                if(self.reg_comp_act.id_computadora == self.computadora.id):
                     self.registra_deja()
                     return True, {'text': u'Usuario con código: ' +
                                   self.usuario.codigo + u' dejó la máquina ' +
