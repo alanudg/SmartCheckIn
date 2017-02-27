@@ -22,7 +22,7 @@ mod_lugar = Blueprint('check_lugar', __name__, url_prefix='/lugar')
 class CheckLugar(object):
     """
     Clase que encapsula el manejo de entradas y salidas de un Lugar.
-    :param id_lugar: the Flask application object
+    :param id_lugar: id del lugar en donde se quiere registrar el evento
     :type id_lugar: int
     :param key: Llave para verificar si el acceso al lugar es válido
     :type key: string
@@ -40,7 +40,7 @@ class CheckLugar(object):
         """
         Configura un usuario para después ser usado por otros métodos
         :param usuario:
-        :type app: app.models.Usuario
+        :type usuario: app.models.Usuario
         """
         self.usuario = usuario
 
