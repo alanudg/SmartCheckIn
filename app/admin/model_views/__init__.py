@@ -71,7 +71,7 @@ class LugarAdmin(geoa.ModelView):
     list_template = 'admin/Lugar/list.html'
     create_template = 'admin/Lugar/create.html'
     edit_template = 'admin/Lugar/edit.html'
-    form_excluded_columns = list = ('computadora_id', 'registro_id', 'key')
+    form_excluded_columns = list = ('computadoras', 'registros', 'key')
     column_list = ('nombre', 'coordenadas', 'hora_apertura', 'hora_cierre',
                    'QR', 'key')
     column_formatters = {
