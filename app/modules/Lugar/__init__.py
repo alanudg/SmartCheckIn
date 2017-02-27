@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from app.config import db_sql
 from flask import request, flash, render_template, url_for, redirect, Blueprint
-from app import config
+import datetime
 from app.utils import key_utils
 from flask_login import current_user
 from app.models import Lugar, Usuario, Registro
@@ -19,7 +19,14 @@ class check_lugar_form(FlaskForm):
 mod_lugar = Blueprint('check_lugar', __name__, url_prefix='/lugar')
 
 
-class CheckLugar():
+class CheckLugar(object):
+    """
+    Clase que encapsula el manejo de entradas y salidas de un Lugar.
+    :param id_lugar: the Flask application object
+    :type id_lugar: int
+    :param key: Llave para verificar si el acceso al lugar es válido
+    :type key: string
+    """
     def __init__(self, id_lugar, key):
         self.id_lugar = int(id_lugar)
         self.key = str(key)
@@ -30,9 +37,20 @@ class CheckLugar():
         self.obten_lugar()
 
     def set_usuario(self, usuario):
+        """
+        Configura un usuario para después ser usado por otros métodos
+        :param usuario:
+        :type app: app.models.Usuario
+        """
         self.usuario = usuario
 
     def obten_lugar(self):
+        """
+        Si existe un Lugar con ese id y esa llave, entonces guarda en
+        self.lugar el objeto Lugar y lo retorna. Si no existe el lugar entonces
+        guardará y retornará None.
+        :return: app.models.Lugar
+        """
         query = db_sql.session.query(Lugar.id, Lugar.nombre).filter(
             (Lugar.id == self.id_lugar) & (Lugar.key == str(self.key))
         )
@@ -40,46 +58,109 @@ class CheckLugar():
             self.lugar = query.first()
         else:
             self.lugar = None
+        return self.lugar
 
     def lugar_valido(self):
+        """
+        Retorna si ya está seteado un lugar válido en el objeto self o no.
+        :return: bool
+        """
         return self.lugar is not None
 
     def obten_lugar_activo(self):
-        lugar_activo = db_sql.session.query(Registro).filter(
-            (Usuario.id == self.usuario.id) &
-            (Registro.activo) &
-            (Registro.tipo_registro_id == config.ID_ENTRADA_LUGAR)
-        )
-        if(lugar_activo.count() > 0):
-            return lugar_activo.first()
+        """
+        Obtiene el lugar donde el usuario guardado en self.usuario está activo.
+        En caso de que no tenga un lugar activo retornará None.
+        En caso de que no exista un usuario en self.usuario arrojará una
+        excepción
+        :return: app.models.Registro
+        :raises: ValueError
+        """
+        if self.lugar_activo is None:
+            if self.usuario is None:
+                raise ValueError("self.usuario no ha sido definido, primero llama \
+                                  a self.set_usuario")
+            else:
+                lugar_activo = db_sql.session.query(Registro).filter(
+                    (Usuario.id == self.usuario.id) &
+                    (Registro.fecha_hora_salida.is_(None))
+                )
+                if(lugar_activo.count() > 0):
+                    self.lugar_activo = lugar_activo.first()
+                else:
+                    self.lugar_activo = None
+                return self.lugar_activo
+        else:
+            return self.lugar_activo
 
     def registra_entrada(self):
-        entrada = Registro(usuario_id=self.usuario.id,
-                           lugar_id=self.lugar.id,
-                           tipo_registro_id=config.ID_ENTRADA_LUGAR,
-                           activo=True)
-        db_sql.session.add(entrada)
-        db_sql.session.commit()
+        """
+        Registra la entrada del usuario guardado en self.usuario en el lugar
+        self.lugar
+        En caso de que no exista un usuario guardado en self.usuario o un lugar
+        guardado en self.lugar arrojará una excepción.
+        :raises: ValueError
+        """
+        if self.usuario is None:
+            raise ValueError("self.usuario no ha sido definido, primero llama \
+                              a self.set_usuario")
+        elif self.lugar is None:
+            raise ValueError("self.lugar no ha sido definido, primero llama \
+                              a self.obten_lugar")
+        else:
+            self.obten_lugar_activo()
+            if self.lugar_activo is None:
+                entrada = Registro(id_usuario=self.usuario.id,
+                                   id_lugar=self.lugar.id)
+                db_sql.session.add(entrada)
+                db_sql.session.commit()
+            else:
+                # TODO sólo permite hacer entradas extras si la entrada previa
+                # fue realizada en el lugar padre de este lugar
+                raise ValueError("El usuario ya está activo en otro lugar")
 
     def registra_salida(self):
-        self.lugar_activo.activo = False
-        salida = Registro(usuario_id=self.usuario.id,
-                          lugar_id=self.lugar.id,
-                          tipo_registro_id=config.ID_SALIDA_LUGAR,
-                          activo=False)
-        db_sql.session.add(salida)
-        db_sql.session.commit()
+        """
+        Registra la salida del usuario guardado en self.usuario en el lugar
+        self.lugar_activo
+        En caso de que no exista un lugar guardado en self.lugar_activo
+        arrojará una excepción.
+        :raises: ValueError
+        """
+        if self.lugar_activo is None:
+            raise ValueError("self.lugar_activo no ha sido definido, primero \
+                              llama a self.obten_lugar_activo")
+        else:
+            self.lugar_activo.fecha_hora_salida = datetime.utcnow()
+            db_sql.session.commit()
 
     def computadora_activa(self):
-        c_activa = db_sql.session.query(Registro).filter(
-            (Usuario.id == self.usuario.id) &
-            (Registro.activo) &
-            (Registro.tipo_registro_id == config.ID_TOMA_COMPUTADORA)
-        )
-        return c_activa.count() > 0
+        """
+        Retorna True si existe una computadora activa asociada al usuario
+        guardado en self.usuario
+        En caso de que no exista un usuario guardado en self.usuario o un lugar
+        guardado en self.lugar arrojará una excepción.
+        :return: bool
+        :raises: ValueError
+        """
+        if self.usuario is None:
+            raise ValueError("self.usuario no ha sido definido, primero llama \
+                              a self.set_usuario")
+        else:
+            c_activa = db_sql.session.query(Registro).filter(
+                (Usuario.id == self.usuario.id) &
+                (Registro.fecha_hora_toma.isnot(None)) &
+                (Registro.fecha_hora_entrega.is_(None))
+            )
+            return c_activa.count() > 0
 
     def valida_salida(self):
-        if(self.lugar_activo.lugar_id == int(self.id_lugar)):
+        """
+        Valida que se pueda crear una salida para el usuario guardado en
+        self.usuario del lugar guardado en self.lugar_activo
+        :return: bool, {:text: string, :category: string}
+        """
+        if(self.lugar_activo.id_lugar == int(self.id_lugar)):
             if(self.computadora_activa()):
                 return False, {'text': u'Tienes una computadora sin entregar',
                                'category': 'warning'}
@@ -96,6 +177,11 @@ class CheckLugar():
                            'category': 'warning'}
 
     def valida_entrada_salida_lugar(self):
+        """
+        Valida que se pueda crear una entrada para el usuario guardado en
+        self.usuario del lugar guardado en self.lugar_activo
+        :return: bool, {:text: string, :category: string}
+        """
         self.lugar_activo = self.obten_lugar_activo()
         if(self.lugar_activo is None):
             self.registra_entrada()
@@ -106,6 +192,14 @@ class CheckLugar():
             return self.valida_salida()
 
     def usuario_valido(self, codigo, nip):
+        """
+        Valida que exista un usuario que cumpla con el par codigo / nip
+        :param codigo: El código del usuario
+        :type codigo: string
+        :param nip: El nip del usuario
+        :type nip: string
+        :return: bool, {:text: string, :category: string}
+        """
         query = db_sql.session.query(Usuario).filter(
             (Usuario.codigo == codigo)
         )
