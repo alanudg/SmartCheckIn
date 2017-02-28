@@ -4,10 +4,10 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from app.config import db_sql
 from flask import request, flash, render_template, url_for, redirect, Blueprint
-from app import config
 from app.utils import key_utils
 from flask_login import current_user
-from app.models import Lugar, Usuario, Registro, Computadora
+from app.models import Lugar, Usuario, Registro, Computadora, Detalle_registro
+from datetime import datetime
 
 
 class check_computadora_form(FlaskForm):
@@ -114,7 +114,7 @@ class CheckComputadora():
         En caso de que no tenga una computadora activa retornará None.
         En caso de que no exista un usuario en self.usuario arrojará una
         excepción
-        :return: app.models.Registro
+        :return: app.models.Detalle_registro
         :raises: ValueError
         """
         if self.reg_comp_act is None:
@@ -123,10 +123,15 @@ class CheckComputadora():
                                   llama a self.set_usuario")
             else:
                 if self.lugar_activo is None:
-                    raise ValueError("self.usuario no ha sido definido, \
+                    raise ValueError("self.lugar_activo no ha sido definido, \
                                       primero llama a self.obten_lugar_activo")
-                if self.lugar_activo.fecha_hora_entrega is None:
-                    self.reg_comp_act = self.lugar_activo
+                c_activa = db_sql.session.query(Detalle_registro).filter(
+                    (Detalle_registro.fecha_hora_toma.isnot(None)) &
+                    (Detalle_registro.fecha_hora_entrega.is_(None)) &
+                    (Detalle_registro.id_registro == self.lugar_activo.id)
+                )
+                if(c_activa.count() > 0):
+                    self.reg_comp_act = c_activa.first()
                 else:
                     self.reg_comp_act = None
                 return self.reg_comp_act
@@ -153,35 +158,60 @@ class CheckComputadora():
                 return self.reg_comp_act.id_computadora != self.computadora.id
 
     def registra_toma(self):
-        # FIXME
-        toma = Registro(id_usuario=self.usuario.id,
-                        id_lugar=self.lugar.id,
-                        id_computadora=self.computadora.id,
-                        tipo_registro_id=config.ID_TOMA_COMPUTADORA,
-                        activo=True)
-        db_sql.session.add(toma)
-        db_sql.session.commit()
+        """
+        Registra el uso de una Computadora por parte del usuario guardado en
+        self.usuario
+        En caso de que no exista un lugar guardado en self.lugar_activo
+        arrojará una excepción.
+        :raises: ValueError
+        """
+        if self.lugar_activo is None:
+            raise ValueError("self.lugar_activo no ha sido definido, primero \
+                              llama a self.obten_lugar_activo")
+        else:
+            toma = Detalle_registro(
+                            id_computadora=self.computadora.id,
+                            id_registro=self.lugar_activo.id)
+            db_sql.session.add(toma)
+            db_sql.session.commit()
 
     def registra_deja(self):
-        self.reg_comp_act.activo = False
-        deja = Registro(id_usuario=self.usuario.id,
-                        id_lugar=self.lugar.id,
-                        id_computadora=self.computadora.id,
-                        tipo_registro_id=config.ID_DEJA_COMPUTADORA,
-                        activo=False)
-        db_sql.session.add(deja)
-        db_sql.session.commit()
+        """
+        Registra la entrega de una Computadora por parte del usuario guardado
+        en self.usuario
+        En caso de que no exista una computadora guardada en self.reg_comp_act
+        arrojará una excepción.
+        :raises: ValueError
+        """
+        if self.reg_comp_act is None:
+            raise ValueError("self.reg_comp_act no ha sido definido, primero \
+                              llama a self.obten_computadora_activa")
+        else:
+            self.reg_comp_act.fecha_hora_entrega = datetime.utcnow()
+            db_sql.session.commit()
 
     def computadora_ocupada(self):
-        c_ocupada = db_sql.session.query(Registro).filter(
-            (Registro.id_usuario != self.usuario.id) &
-            (Registro.id_computadora == self.computadora.id) &
-            (Registro.activo) &
-            (Registro.tipo_registro_id == config.ID_TOMA_COMPUTADORA)
+        """
+        Retorna si la computadora que se intenta tomar ya está tomada por algún
+        otro usuario
+        :return: bool
+        """
+        c_ocupada = db_sql.session.query(Detalle_registro).filter(
+            (Detalle_registro.id_computadora == self.computadora.id) &
+            (Detalle_registro.fecha_hora_toma.isnot(None)) &
+            (Detalle_registro.fecha_hora_entrega.is_(None))
+        ).join(Registro).filter(
+            (Registro.id_usuario != self.usuario.id)
         )
         return c_ocupada.count() > 0
 
     def valida_toma_deja_computadora(self):
+        """
+        Valida que se pueda crear una adquisición de la computadora para el
+        usuario guardado en self.usuario del lugar guardado en
+        self.lugar_activo
+        :return: bool, {:text: string, :category: string}
+        """
         self.obten_lugar_activo()
         if(self.lugar_activo is None):
             return False, {'text': u'Necesitas estar dentro del lugar al que \
@@ -215,6 +245,14 @@ class CheckComputadora():
                                    'category': 'warning'}
 
     def usuario_valido(self, codigo, nip):
+        """
+        Valida que exista un usuario que cumpla con el par codigo / nip
+        :param codigo: El código del usuario
+        :type codigo: string
+        :param nip: El nip del usuario
+        :type nip: string
+        :return: bool, {:text: string, :category: string}
+        """
         query = db_sql.session.query(Usuario).filter(
             (Usuario.codigo == codigo)
         )

@@ -151,7 +151,8 @@ class CheckLugar(object):
                 (Detalle_registro.fecha_hora_toma.isnot(None)) &
                 (Detalle_registro.fecha_hora_entrega.is_(None))
             ).join(Registro).filter(
-                (Registro.id_usuario == self.usuario.id)
+                (Registro.id_usuario == self.usuario.id) &
+                (Registro.fecha_hora_salida.is_(None))
             )
             return c_activa.count() > 0
 
