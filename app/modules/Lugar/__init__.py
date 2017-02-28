@@ -4,10 +4,10 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from app.config import db_sql
 from flask import request, flash, render_template, url_for, redirect, Blueprint
-import datetime
+from datetime import datetime
 from app.utils import key_utils
 from flask_login import current_user
-from app.models import Lugar, Usuario, Registro
+from app.models import Lugar, Usuario, Registro, Detalle_registro
 
 
 class check_lugar_form(FlaskForm):
@@ -147,10 +147,11 @@ class CheckLugar(object):
             raise ValueError("self.usuario no ha sido definido, primero llama \
                               a self.set_usuario")
         else:
-            c_activa = db_sql.session.query(Registro).filter(
-                (Usuario.id == self.usuario.id) &
-                (Registro.fecha_hora_toma.isnot(None)) &
-                (Registro.fecha_hora_entrega.is_(None))
+            c_activa = db_sql.session.query(Detalle_registro.id).filter(
+                (Detalle_registro.fecha_hora_toma.isnot(None)) &
+                (Detalle_registro.fecha_hora_entrega.is_(None))
+            ).join(Registro).filter(
+                (Registro.id_usuario == self.usuario.id)
             )
             return c_activa.count() > 0
 

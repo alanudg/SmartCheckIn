@@ -93,7 +93,7 @@ class LugarAdmin(geoa.ModelView):
 
 
 class ComputadoraAdmin(sqla.ModelView):
-    form_excluded_columns = list = ('registro_id', 'key')
+    form_excluded_columns = list = ('registro_id', 'key', 'detalles_registro')
     column_list = ('Lugar', 'nombre', 'QR', 'key')
 
     column_formatters = {
@@ -121,7 +121,7 @@ class ComputadoraAdmin(sqla.ModelView):
 class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora_entrada', )
     column_list = list = ('fecha_hora_entrada', 'Lugar', 'Usuario',
-                          'Usuario.codigo', 'Computadora')
+                          'Usuario.codigo')
     can_create = False
     can_edit = False
     can_delete = False
@@ -146,21 +146,21 @@ class RegistroAdmin(sqla.ModelView):
                                      'flt1_16',
                                      m.Usuario.email,
                                      m.Usuario.email)),
-        'Computadora': (lambda v, c, m, p:
-                        render_list_link(v, c, m, p,
-                                         'flt3_30',
-                                         m.Computadora.nombre,
-                                         m.Computadora.nombre)
-                        if m.Computadora is not None else
-                        render_list_link(v, c, m, p,
-                                         'flt5_32',
-                                         '1',
-                                         'NULL')
-                        ),
+        # 'Computadora': (lambda v, c, m, p:
+        #                 render_list_link(v, c, m, p,
+        #                                  'flt3_30',
+        #                                  m.Computadora.nombre,
+        #                                  m.Computadora.nombre)
+        #                 if m.Computadora is not None else
+        #                 render_list_link(v, c, m, p,
+        #                                  'flt5_32',
+        #                                  '1',
+        #                                  'NULL')
+        #                 ),
          }
 
     column_filters = ['fecha_hora_entrada', 'Lugar.nombre', 'Usuario.email',
-                      'Usuario.codigo', 'Computadora.nombre']
+                      'Usuario.codigo']
 
     list_template = 'admin/list_moment.html'
 

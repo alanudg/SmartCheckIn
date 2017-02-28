@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from app.config import db_sql as db
 from app.utils.key_utils import generate_key
 
@@ -11,7 +12,8 @@ class Computadora(db.Model):
 
     id_lugar = db.Column(db.Integer, db.ForeignKey('lugar.id'), nullable=False)
 
-    registros = db.relationship('Registro', backref='Computadora', lazy=True)
+    detalles_registro = db.relationship('Detalle_registro',
+                                        backref='Computadora', lazy=True)
 
     def __unicode__(self):
         return self.nombre
