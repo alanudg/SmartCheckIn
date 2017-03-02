@@ -2,7 +2,71 @@
     var AdminForm = function() {
         // Field converters
         var fieldConverters = [];
+        /**
+        * Process AJAX fk-widget
+        */
+        function processAjaxWidget($el, name) {
+          var multiple = $el.attr('data-multiple') == '1';
 
+          var opts = {
+            width: 'resolve',
+            minimumInputLength: 1,
+            placeholder: 'data-placeholder',
+            ajax: {
+              url: $el.attr('data-url'),
+              data: function(term, page) {
+                return {
+                  query: term,
+                  offset: (page - 1) * 10,
+                  limit: 10
+                };
+              },
+              results: function(data, page) {
+                var results = [];
+
+                for (var k in data) {
+                  var v = data[k];
+
+                  results.push({id: v[0], text: v[1]});
+                }
+
+                return {
+                  results: results,
+                  more: results.length == 10
+                };
+              }
+            },
+            initSelection: function(element, callback) {
+              $el = $(element);
+              var value = jQuery.parseJSON($el.attr('data-json'));
+              var result = null;
+
+              if (value) {
+                if (multiple) {
+                  result = [];
+
+                  for (var k in value) {
+                    var v = value[k];
+                    result.push({id: v[0], text: v[1]});
+                  }
+
+                  callback(result);
+                } else {
+                  result = {id: value[0], text: value[1]};
+                }
+              }
+
+              callback(result);
+            }
+          };
+
+          if ($el.attr('data-allow-blank'))
+            opts['allowClear'] = true;
+
+          opts['multiple'] = multiple;
+
+          $el.select2(opts);
+        }
         /**
          * Process Leaflet (map) widget
          */
@@ -253,6 +317,59 @@
             }
 
             switch (name) {
+                  case 'select2':
+                      var opts = {
+                          width: 'resolve'
+                      };
+
+                      if ($el.attr('data-allow-blank'))
+                          opts['allowClear'] = true;
+
+                      if ($el.attr('data-tags')) {
+                          $.extend(opts, {
+                              tokenSeparators: [','],
+                              tags: []
+                          });
+                      }
+
+                      $el.select2(opts);
+                      return true;
+                  case 'select2-tags':
+                      // get tags from element
+                      if ($el.attr('data-tags')) {
+                          var tags = JSON.parse($el.attr('data-tags'));
+                      } else {
+                          var tags = [];
+                      }
+
+                      // default to a comma for separating list items
+                      // allows using spaces as a token separator
+                      if ($el.attr('data-token-separators')) {
+                          var tokenSeparators = JSON.parse($el.attr('data-tags'));
+                      } else {
+                          var tokenSeparators = [','];
+                      }
+
+                      var opts = {
+                          width: 'resolve',
+                          tags: tags,
+                          tokenSeparators: tokenSeparators,
+                          formatNoMatches: function() {
+                              return 'Enter comma separated values';
+                          }
+                      };
+
+                      $el.select2(opts);
+
+                      // submit on ENTER
+                      $el.parent().find('input.select2-input').on('keyup', function(e) {
+                         if(e.keyCode === 13)
+                            $(this).closest('form').submit();
+                      });
+                      return true;
+                  case 'select2-ajax':
+                      processAjaxWidget($el, name);
+                      return true;
                   case 'datepicker':
                       $el.daterangepicker({
                         timePicker: false,
@@ -355,6 +472,56 @@
                 case 'leaflet':
                     processLeafletWidget($el, name);
                     return true;
+                    case 'x-editable':
+                        $el.editable({params: overrideXeditableParams});
+                        return true;
+                case 'x-editable-combodate':
+                    $el.editable({
+                        params: overrideXeditableParams,
+                        combodate: {
+                            // prevent minutes from showing in 5 minute increments
+                            minuteStep: 1
+                        }
+                    });
+                    return true;
+                case 'x-editable-select2-multiple':
+                    $el.editable({
+                        params: overrideXeditableParams,
+                        ajaxOptions: {
+                            // prevents keys with the same value from getting converted into arrays
+                            traditional: true
+                        },
+                        select2: {
+                            multiple: true
+                        },
+                        display: function(value) {
+                            // override to display text instead of ids on list view
+                            var html = [];
+                            var data = $.fn.editableutils.itemsByValue(value, $el.data('source'), 'id');
+
+                            if(data.length) {
+                                $.each(data, function(i, v) { html.push($.fn.editableutils.escape(v.text)); });
+                                $(this).html(html.join(', '));
+                            } else {
+                                $(this).empty();
+                            }
+                        }
+                    });
+                    return true;
+                case 'x-editable-boolean':
+                    $el.editable({
+                        params: overrideXeditableParams,
+                        display: function(value, sourceData, response) {
+                           // display new boolean value as an icon
+                           if(response) {
+                               if(value == '1') {
+                                   $(this).html('<span class="fa fa-check-circle glyphicon glyphicon-ok-circle icon-ok-circle"></span>');
+                               } else {
+                                   $(this).html('<span class="fa fa-minus-circle glyphicon glyphicon-minus-sign icon-minus-sign"></span>');
+                               }
+                           }
+                        }
+                    });
             }
         };
 
