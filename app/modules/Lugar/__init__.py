@@ -3,7 +3,9 @@ from flask import Blueprint
 from app.modules.Lugar import check_lugar
 
 
-mod_lugar = Blueprint('check_lugar', __name__, url_prefix='/lugar')
+mod_lugar = Blueprint('check_lugar',
+                      __name__,
+                      url_prefix='/lugar')
 
 
 mod_lugar.add_url_rule('/enlace_lugar',

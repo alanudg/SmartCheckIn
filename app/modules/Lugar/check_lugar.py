@@ -238,7 +238,7 @@ def enlace_lugar():
                              url, <a href="' + url_for_security('logout') +
                              u'">cerrar sesión</a> y volver a usar la URL'),
                       category='danger')
-                return render_template('enlace_lugar.html',
+                return render_template('lugar/enlace_lugar.html',
                                        id=id_lugar,
                                        key=key,
                                        nombre=check_lugar.lugar.nombre,
@@ -254,7 +254,7 @@ def enlace_lugar():
                 flash(message['text'], category=message['category'])
             # TODO Crear este template (quizás se haga un template 'padre'
             # para las vistas similares a esta)
-            return render_template('enlace_lugar.html',
+            return render_template('lugar/enlace_lugar.html',
                                    id=id_lugar,
                                    key=key,
                                    nombre=check_lugar.lugar.nombre,

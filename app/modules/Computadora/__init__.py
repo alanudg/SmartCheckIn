@@ -18,7 +18,7 @@ class check_comp_form(FlaskForm):
     submit = SubmitField(label="Check")
 
 
-mod_computadora = Blueprint('check_comp',
+mod_computadora = Blueprint('check_computadora',
                             __name__,
                             url_prefix='/computadora')
 
@@ -294,7 +294,7 @@ def enlace_computadora():
                              url, <a href="' + url_for_security('logout') +
                              u'">cerrar sesión</a> y volver a usar la URL'),
                       category='danger')
-                return render_template('enlace_computadora.html',
+                return render_template('computadora/enlace_computadora.html',
                                        id=id_computadora,
                                        key=key,
                                        nombre=check_comp.computadora.nombre,
@@ -312,7 +312,7 @@ def enlace_computadora():
 
             # TODO Crear este template (quizás se haga un template 'padre'
             # para las vistas similares a esta)
-            return render_template('enlace_computadora.html',
+            return render_template('computadora/enlace_computadora.html',
                                    id=id_computadora,
                                    key=key,
                                    nombre=check_comp.computadora.nombre,
