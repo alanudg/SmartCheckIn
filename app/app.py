@@ -25,7 +25,6 @@ def create_db():
 # Initialize Flask-Admin
 admin = Admin(app,
               template_mode='bootstrap3',
-              base_template='/admin/my_index.html',
               url='/admin')
 
 admin_utils.load_model_views(admin, db_sql)
