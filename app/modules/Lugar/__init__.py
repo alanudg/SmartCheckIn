@@ -3,9 +3,11 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from app.config import db_sql
-from flask import request, flash, render_template, url_for, redirect, Blueprint
+from flask import request, flash, render_template, url_for, redirect, \
+                  Blueprint, Markup
 from datetime import datetime
 from app.utils import key_utils
+from flask_security import url_for_security
 from flask_login import current_user
 from app.models import Lugar, Usuario, Registro, Detalle_registro
 
@@ -236,10 +238,21 @@ def enlace_lugar():
         formulario = check_lugar_form(csrf_enabled=False)
 
         if current_user.is_authenticated:
-            check_lugar.set_usuario(current_user)
-            e, message = check_lugar.valida_entrada_salida_lugar()
-            flash(message['text'], category=message['category'])
-            return redirect('/')
+            if 'admin' in current_user.roles:
+                flash(Markup(u'Te encuentras como Admin, favor de copiar la \
+                             url, <a href="' + url_for_security('logout') +
+                             u'">cerrar sesión</a> y volver a usar la URL'),
+                      category='danger')
+                return render_template('enlace_lugar.html',
+                                       id=id_lugar,
+                                       key=key,
+                                       nombre=check_lugar.lugar.nombre,
+                                       form=formulario)
+            else:
+                check_lugar.set_usuario(current_user)
+                e, message = check_lugar.valida_entrada_salida_lugar()
+                flash(message['text'], category=message['category'])
+                return redirect('/')
         else:
             if formulario.validate_on_submit():
                 message = check_lugar.valida_formulario(formulario)

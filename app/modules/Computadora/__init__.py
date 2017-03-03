@@ -3,20 +3,22 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from app.config import db_sql
-from flask import request, flash, render_template, url_for, redirect, Blueprint
+from flask import request, flash, render_template, url_for, redirect,\
+                  Blueprint, Markup
 from app.utils import key_utils
 from flask_login import current_user
+from flask_security import url_for_security
 from app.models import Lugar, Usuario, Registro, Computadora, Detalle_registro
 from datetime import datetime
 
 
-class check_computadora_form(FlaskForm):
+class check_comp_form(FlaskForm):
     codigo = StringField(u'Código', validators=[DataRequired()])
     nip = PasswordField(u'Nip', validators=[DataRequired()])
     submit = SubmitField(label="Check")
 
 
-mod_computadora = Blueprint('check_computadora',
+mod_computadora = Blueprint('check_comp',
                             __name__,
                             url_prefix='/computadora')
 
@@ -282,18 +284,30 @@ class CheckComputadora():
 def enlace_computadora():
     key = request.args.get('key')
     id_computadora = request.args.get('id')
-    check_computadora = CheckComputadora(id_computadora, key)
-    if check_computadora.computadora_valida():
-        formulario = check_computadora_form(csrf_enabled=False)
+    check_comp = CheckComputadora(id_computadora, key)
+    if check_comp.computadora_valida():
+        formulario = check_comp_form(csrf_enabled=False)
 
         if current_user.is_authenticated:
-            check_computadora.set_usuario(current_user)
-            e, res = check_computadora.valida_toma_deja_computadora()
-            flash(res['text'], category=res['category'])
-            return redirect('/')
+            if 'admin' in current_user.roles:
+                flash(Markup(u'Te encuentras como Admin, favor de copiar la \
+                             url, <a href="' + url_for_security('logout') +
+                             u'">cerrar sesión</a> y volver a usar la URL'),
+                      category='danger')
+                return render_template('enlace_computadora.html',
+                                       id=id_computadora,
+                                       key=key,
+                                       nombre=check_comp.computadora.nombre,
+                                       nombre_lugar=check_comp.lugar.nombre,
+                                       form=formulario)
+            else:
+                check_comp.set_usuario(current_user)
+                e, res = check_comp.valida_toma_deja_computadora()
+                flash(res['text'], category=res['category'])
+                return redirect('/')
         else:
             if formulario.validate_on_submit():
-                message = check_computadora.valida_formulario(formulario)
+                message = check_comp.valida_formulario(formulario)
                 flash(message['text'], category=message['category'])
 
             # TODO Crear este template (quizás se haga un template 'padre'
@@ -301,8 +315,8 @@ def enlace_computadora():
             return render_template('enlace_computadora.html',
                                    id=id_computadora,
                                    key=key,
-                                   nombre=check_computadora.computadora.nombre,
-                                   nombre_lugar=check_computadora.lugar.nombre,
+                                   nombre=check_comp.computadora.nombre,
+                                   nombre_lugar=check_comp.lugar.nombre,
                                    form=formulario)
     else:
         flash(u'Error de acceso: '+str(id_computadora))
