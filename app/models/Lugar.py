@@ -1,7 +1,6 @@
 from app.config import db_sql as db
 from app.utils.key_utils import generate_key
 from geoalchemy2.types import Geometry
-from app.models.Lugares_Usuarios import lugares_usuarios
 
 
 class Lugar(db.Model):

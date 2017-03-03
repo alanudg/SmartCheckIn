@@ -8,6 +8,13 @@
       {% endfor %}
       </ul>
       Hola user <a href="{{ url_for_security('logout') }}">Salir</a> | <a href="{{url_for('user_role', user=current_user.email, role='andres')}}">Url</a>
+      <div>
+        {% if current_user.lugares: %}
+          {% for lugar in current_user.lugares: %}
+            {{lugar}}
+          {% endfor %}
+        {% endif %}
+      </div>
     {% else %}
       Hola extraño  <a href="{{ url_for_security('login') }}">Entrar</a>
     {% endif %}
