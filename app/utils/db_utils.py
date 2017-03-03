@@ -18,16 +18,33 @@ def create_sample_db(db_sql, user_datastore):
     ocup_alumno = Ocupacion(nombre='Alumno',
                             descripcion='Alumno perteneciente al CUCEA')
     db_sql.session.add(ocup_alumno)
-    l_cici = Lugar(nombre='CICI', coordenadas='POLYGON((-103.378770053387 \
-                                               20.7441044873678, \
-                                               -103.378748595715 \
-                                               20.7439991376452, \
-                                               -103.378555476665 \
-                                               20.7440242209191, \
-                                               -103.378555476665 \
-                                               20.7441245539733, \
-                                               -103.378770053387 \
-                                               20.7441044873678))')
+    l_cucea = Lugar(nombre='CUCEA',
+                    coordenadas='POLYGON((-103.383085727692 \
+                                 20.7399807434582, \
+                                 -103.378794193268 \
+                                 20.7391780551767, \
+                                 -103.377120494843 \
+                                 20.7447967837201, \
+                                 -103.3789229393 \
+                                 20.7447967837201, \
+                                 -103.379480838776 \
+                                 20.7445559853482, \
+                                 -103.381283283234 \
+                                 20.7448770497589, \
+                                 -103.383085727692 \
+                                 20.7399807434582))')
+    l_cici = Lugar(nombre='CICI',
+                   coordenadas='POLYGON((-103.378770053387 \
+                                20.7441044873678, \
+                                -103.378748595715 \
+                                20.7439991376452, \
+                                -103.378555476665 \
+                                20.7440242209191, \
+                                -103.378555476665 \
+                                20.7441245539733, \
+                                -103.378770053387 \
+                                20.7441044873678))',
+                   lugar_padre=l_cucea)
     db_sql.session.add(l_cici)
     db_sql.session.commit()
 
@@ -53,7 +70,8 @@ def create_sample_db(db_sql, user_datastore):
                                    nip='1111',
                                    apellido_paterno='Sánchez',
                                    apellido_materno='Castro',
-                                   nombres='Alan Andrés')
+                                   nombres='Alan Andrés',
+                                   lugares=[l_cici])
     if not user_datastore.get_user('admin'):
         user_datastore.create_user(email='admin',
                                    password=encrypted_password)
