@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from app.models import Ocupacion, Lugar, Computadora
+from app.models import Ocupacion, Lugar, Computadora, Lugares_Usuarios
 from flask_security import utils
 
 
@@ -71,7 +71,8 @@ def create_sample_db(db_sql, user_datastore):
                                    apellido_paterno='Sánchez',
                                    apellido_materno='Castro',
                                    nombres='Alan Andrés',
-                                   lugares=[l_cici])
+                                   lugares=[l_cici]
+                                   )
     if not user_datastore.get_user('admin'):
         user_datastore.create_user(email='admin',
                                    password=encrypted_password)
@@ -79,6 +80,10 @@ def create_sample_db(db_sql, user_datastore):
     # Commit any database changes;
     # the User and Roles must exist before we can add a Role to the User
     db_sql.session.commit()
+
+    # lugar_usuario = Lugares_Usuarios()
+    # lugar_usuario.lugar = l_cici
+    # user_datastore.get_user('alan').lugares.append(l_cici)
 
     # Give one User has the "end-user" role, while the other
     # has the "admin" role. (This will have no effect if the

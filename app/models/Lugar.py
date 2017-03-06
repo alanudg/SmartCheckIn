@@ -20,10 +20,8 @@ class Lugar(db.Model):
     computadoras = db.relationship('Computadora', backref='Lugar', lazy=True)
     lugar_padre = db.relationship('Lugar', remote_side=[id])
     registros = db.relationship('Registro', backref='Lugar', lazy=True)
-    # usuarios = db.relationship('Usuario',
-    #                            secondary=lugares_usuarios,
-    #                            backref=db.backref('usuarios',
-    #                                               lazy='dynamic'))
+    usuarios = db.relationship("Usuario",
+                               secondary='lugares_usuarios')
 
     def __unicode__(self):
         return self.nombre

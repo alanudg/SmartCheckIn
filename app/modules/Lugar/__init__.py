@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint
-from app.modules.Lugar import check_lugar
+from app.modules.Lugar import check_lugar, usuario_lugar
 
 
 mod_lugar = Blueprint('check_lugar',
@@ -14,3 +14,6 @@ mod_lugar.add_url_rule('/enlace_lugar',
 
 mod_lugar.add_url_rule('/actualizar_llave_lugar/<id>',
                        view_func=check_lugar.actualizar_llave_lugar)
+
+mod_lugar.add_url_rule('/genera_qr/<id>',
+                       view_func=usuario_lugar.generar_qr_lugar)

@@ -1,7 +1,7 @@
 from flask_security import UserMixin
 from app.config import db_sql as db
 from app.models.Roles_Usuarios import roles_usuarios
-from app.models.Lugares_Usuarios import lugares_usuarios
+from app.models.Lugares_Usuarios import Lugares_Usuarios
 
 
 class Usuario(db.Model, UserMixin):
@@ -31,10 +31,8 @@ class Usuario(db.Model, UserMixin):
                             secondary=roles_usuarios,
                             backref=db.backref('usuarios',
                                                lazy='dynamic'))
-    lugares = db.relationship('Lugar',
-                              secondary=lugares_usuarios,
-                              backref=db.backref('usuarios',
-                                                 lazy='dynamic'))
+    lugares = db.relationship("Lugar",
+                              secondary='lugares_usuarios')
 
     def __unicode__(self):
         return self.email
