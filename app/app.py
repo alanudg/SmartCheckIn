@@ -71,6 +71,14 @@ def home():
         user = AnonymousUser
     return render_template('index.html', user=user)
 
+@app.route('/analytics')
+# @login_required
+def analytics():
+    user = UserMixin
+    if user.is_anonymous:
+        user = AnonymousUser
+    return render_template('analytics.html', user=user)
+
 
 app.register_blueprint(mod_lugar)
 app.register_blueprint(mod_computadora)
