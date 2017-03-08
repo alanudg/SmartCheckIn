@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, flash
+from flask import render_template, flash, request
 from flask_wtf import FlaskForm
 from flask_qrcode import QRcode
 from wtforms import StringField, SubmitField, TextAreaField
@@ -11,6 +11,7 @@ from db import user_datastore
 from utils import db_utils, admin_utils
 from flask_admin import Admin
 from modules import mod_lugar, mod_computadora
+import json
 
 app = config.app
 db_sql = config.db_sql
@@ -70,6 +71,16 @@ def home():
     if user.is_anonymous:
         user = AnonymousUser
     return render_template('index.html', user=user)
+
+
+@app.route('/genera_token', methods=['POST'])
+def genera_token():
+    print 'data:' + str(json.loads(request.data))
+    json_data = json.loads(request.data)
+    my_string = ''
+    for k in json_data:
+        my_string += str(k) + ' : ' + str(json_data[k]) + ', '
+    return 'TAG: (' + my_string + ')'
 
 
 app.register_blueprint(mod_lugar)

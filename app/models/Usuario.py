@@ -16,6 +16,7 @@ class Usuario(db.Model, UserMixin):
     apellido_paterno = db.Column(db.String(20))
     apellido_materno = db.Column(db.String(20))
     nombres = db.Column(db.String(30))
+    token = db.Column(db.String(32), nullable=True)
     # Datos de seguridad
     active = db.Column(db.Boolean())
     last_login_at = db.Column(db.String(255))

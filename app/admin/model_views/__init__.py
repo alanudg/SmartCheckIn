@@ -16,13 +16,24 @@ class UserAdmin(sqla.ModelView):
     form_excluded_columns = ('password', 'nip', 'registros', 'last_login_at',
                              'current_login_at', 'last_login_ip',
                              'current_login_at', 'login_count', 'confirmed_at',
-                             'current_login_ip')
+                             'current_login_ip', 'token')
 
     # Automatically display human-readable names for the current and available
     # Roles when creating or editing a User
     column_auto_select_related = True
 
     column_searchable_list = (Usuario.email,)
+
+    # column_list = ('email', 'codigo', 'nip', 'apellido_paterno',
+    #                'apellido_materno', 'nombres', )
+
+    column_formatters = {
+        'token': (lambda v, c, m, p:
+                  Markup("%s <a href='#' data-id='%s' class='token_refresher'>\
+                         <span class='glyphicon glyphicon-refresh'></span>\
+                         </a>" % (m.token, m.id))
+                  )
+    }
 
     form_args = dict(
         roles=dict(
