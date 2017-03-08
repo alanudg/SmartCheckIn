@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block page_content %}
+  <div class="well">
+    {% if (current_user and current_user.is_active): %}
+    <div class="well">
+        <h3>Frecuencias</h3>
+    </div>
+    <div class="well">
+        <h3>Horas</h3>
+    </div>
+    <div class="well">
+        <h3>Cantidades</h3>
+    </div>
+
+
+      Hola user <a href="{{ url_for_security('logout') }}">Salir</a> | <a href="{{url_for('user_role', user=current_user.email, role='andres')}}">Url</a>
+      <div>
+        {% if current_user.lugares: %}
+          {% for lugar in current_user.lugares: %}
+            {{lugar}}
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% else %}
+      Hola extraño  <a href="{{ url_for_security('login') }}">Entrar</a>
+    {% endif %}
+   | <a href="{{ url_for('admin.index') }}">Admin</a>
+  </div>
+{% endblock %}
