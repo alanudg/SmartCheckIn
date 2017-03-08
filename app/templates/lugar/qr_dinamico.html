@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block page_content %}
+  <div class="col-xs-12 col-md-8">
+    <h1 class="text-center">QR único para {{nombre}} en {{lugar}}</h1>
+    <div class="text-center img-responsive">
+      <img src="{{ qrcode(url_for('usuario_lugar.qr_dinamico', key=key, id=id, _external=True)) }}">
+    </div>
+  </div>
+{% endblock %}
