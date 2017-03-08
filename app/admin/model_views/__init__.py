@@ -16,7 +16,7 @@ class UserAdmin(sqla.ModelView):
     form_excluded_columns = ('password', 'nip', 'registros', 'last_login_at',
                              'current_login_at', 'last_login_ip',
                              'current_login_at', 'login_count', 'confirmed_at',
-                             'current_login_ip', 'token')
+                             'current_login_ip')
 
     # Automatically display human-readable names for the current and available
     # Roles when creating or editing a User
@@ -30,8 +30,8 @@ class UserAdmin(sqla.ModelView):
     column_formatters = {
         'token': (lambda v, c, m, p:
                   Markup("%s <a href='#' data-id='%s' class='token_refresher'>\
-                         <span class='glyphicon glyphicon-refresh'></span>\
-                         </a>" % (m.token, m.id))
+                         <!-- <span class='glyphicon glyphicon-refresh'>\
+                         </span>--></a>" % (m.token, m.id))
                   )
     }
 
@@ -131,8 +131,8 @@ class ComputadoraAdmin(sqla.ModelView):
 
 class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora_entrada', )
-    column_list = list = ('fecha_hora_entrada', 'Lugar', 'Usuario',
-                          'Usuario.codigo')
+    column_list = list = ('fecha_hora_entrada', 'fecha_hora_salida', 'Lugar',
+                          'Usuario', 'Usuario.codigo', 'detalles_registro')
     can_create = False
     can_edit = False
     can_delete = False
@@ -142,6 +142,10 @@ class RegistroAdmin(sqla.ModelView):
         'fecha_hora_entrada':
             lambda v, c, m, p:
                 momentjs(m.fecha_hora_entrada).fromNow(),
+        'fecha_hora_salida':
+            lambda v, c, m, p:
+                momentjs(m.fecha_hora_salida).fromNow()
+                if m.fecha_hora_salida is not None else '',
         'Usuario.codigo': (lambda v, c, m, p:
                            render_list_link(v, c, m, p,
                                             'flt2_23',
@@ -157,6 +161,9 @@ class RegistroAdmin(sqla.ModelView):
                                      'flt1_16',
                                      m.Usuario.email,
                                      m.Usuario.email)),
+        'detalles_registro': (lambda v, c, m, p:
+                              str(m.detalles_registro.all())
+                              ),
         # 'Computadora': (lambda v, c, m, p:
         #                 render_list_link(v, c, m, p,
         #                                  'flt3_30',
