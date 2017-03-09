@@ -5,9 +5,7 @@
   <div class="col-xs-12 col-md-8 col-md-offset-2">
     <h1 class="text-center">{{nombre}}</h1>
     <div class="text-center img-responsive">
-      <a href="{{ url_for('check_lugar.enlace_lugar_dinamico', id_lugar=id_lugar, id_usuario=id_usuario, token=token, _external=True) }}" target="_blank">
-        <img src="{{ qrcode(url_for('check_lugar.enlace_lugar_dinamico', id_lugar=id_lugar, id_usuario=id_usuario, token=token, _external=True)) }}" alt="{{ url_for('check_lugar.enlace_lugar_dinamico', id_lugar=id_lugar, id_usuario=id_usuario, token=token, _external=True) }}">
-      </a>
+      <img src="{{ qrcode(url_for('check_lugar.enlace_lugar_dinamico', id_lugar=id_lugar, id_usuario=id_usuario, token=token, _external=True)) }}">
     </div>
   </div>
 {% endblock %}
