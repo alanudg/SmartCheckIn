@@ -12,11 +12,11 @@ class CheckLugar(object):
     :param key: Llave para verificar si el acceso al lugar es válido
     :type key: string
     """
-    def __init__(self, id_lugar, key):
+    def __init__(self, id_lugar, key=None, usuario=None):
         self.id_lugar = int(id_lugar)
         self.key = str(key)
         self.lugar = None
-        self.usuario = None
+        self.usuario = usuario
         self.lugar_activo = None
 
         self.obten_lugar()

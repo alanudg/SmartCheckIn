@@ -17,3 +17,6 @@ mod_lugar.add_url_rule('/actualizar_llave_lugar/<id>',
 
 mod_lugar.add_url_rule('/genera_qr/<id>',
                        view_func=usuario_lugar.generar_qr_lugar)
+
+mod_lugar.add_url_rule('/enlace_lugar_dinamico',
+                       view_func=usuario_lugar.enlace_lugar_dinamico)
