@@ -148,15 +148,15 @@ class CheckLugar(object):
         :return: bool, {:text: string, :category: string}
         """
         if(self.lugar_activo.id_lugar == int(self.id_lugar)):
-            if(self.computadora_activa()):
-                return False, {'text': u'Tienes una computadora sin entregar',
-                               'category': 'warning'}
-            else:
-                self.registra_salida()
-                return True, {'text': u'Usuario con código: ' +
-                              self.usuario.codigo + u' salió de ' +
-                              self.lugar.nombre,
-                              'category': 'success'}
+            # if(self.computadora_activa()):
+            #    return False, {'text': u'Tienes una computadora sin entregar',
+            #                    'category': 'warning'}
+            # else:
+            self.registra_salida()
+            return True, {'text': u'Usuario con código: ' +
+                          self.usuario.codigo + u' salió de ' +
+                          self.lugar.nombre,
+                          'category': 'success'}
         else:
             # TODO verificar si el lugar al que quiere entrar es "hijo" del
             # lugar donde se encuentra activo
