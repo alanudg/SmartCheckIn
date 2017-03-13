@@ -22,4 +22,4 @@ class Detalle_registro(db.Model):
         return hash(self.id)
 
     def __repr__(self):
-        return '<Detalle_registro %r | %r>' % self.id, self.id_registro
+        return '<Detalle_registro %d | %d>' % (self.id, self.id_registro)
