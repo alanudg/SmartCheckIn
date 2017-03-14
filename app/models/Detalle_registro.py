@@ -12,8 +12,17 @@ class Detalle_registro(db.Model):
 
     id_computadora = db.Column(db.Integer, db.ForeignKey('computadora.id'),
                                nullable=False)
-    id_registro = db.Column(db.Integer, db.ForeignKey('registro.id'),
-                            nullable=False)
+    id_registro_entrada = db.Column(db.Integer, db.ForeignKey('registro.id'),
+                                    nullable=False)
+
+    id_registro_salida = db.Column(db.Integer, db.ForeignKey('registro.id'),
+                                   nullable=False)
+
+    registro_entrada = db.relationship('Registro',
+                                       foreign_keys=[id_registro_entrada])
+
+    registro_salida = db.relationship('Registro',
+                                      foreign_keys=[id_registro_salida])
 
     def __unicode__(self):
         return self.id
@@ -22,4 +31,4 @@ class Detalle_registro(db.Model):
         return hash(self.id)
 
     def __repr__(self):
-        return '<Detalle_registro %d | %d>' % (self.id, self.id_registro)
+        return '<Detalle_registro %d | %d>' % (self.id, self.id_registro_entrada)

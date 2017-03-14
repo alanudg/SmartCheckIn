@@ -74,7 +74,7 @@ def home():
         user = AnonymousUser
     recursos_olvidados = db_sql.session.query(Detalle_registro).filter(
         Detalle_registro.fecha_hora_entrega.is_(None)
-    ).join(Registro).filter(
+    ).join(Registro.detalles_registro_salida).filter(
         Registro.fecha_hora_salida.isnot(None)
     ).join(Computadora, Lugar)
     return render_template('index.html',

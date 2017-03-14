@@ -104,7 +104,8 @@ def create_sample_db(db_sql, user_datastore):
 
     toma1 = Detalle_registro(
                     id_computadora=computadora1.id,
-                    id_registro=entrada1.id,
+                    id_registro_entrada=entrada1.id,
+                    id_registro_salida=entrada1.id,
                     fecha_hora_toma=datetime.utcnow() - timedelta(minutes=8),
                     fecha_hora_entrega=datetime.utcnow() - timedelta(minutes=6)
                     )
@@ -113,7 +114,8 @@ def create_sample_db(db_sql, user_datastore):
 
     toma2 = Detalle_registro(
                     id_computadora=computadora2.id,
-                    id_registro=entrada1.id,
+                    id_registro_entrada=entrada1.id,
+                    id_registro_salida=entrada1.id,
                     fecha_hora_toma=datetime.utcnow() - timedelta(minutes=5),
                     fecha_hora_entrega=datetime.utcnow() - timedelta(minutes=4)
                     )
@@ -126,17 +128,18 @@ def create_sample_db(db_sql, user_datastore):
     entrada2 = Registro(id_usuario=alan.id,
                         id_lugar=l_cici.id,
                         fecha_hora_entrada=datetime.utcnow() -
-                        timedelta(minutes=2))
+                        timedelta(minutes=70))
     db_sql.session.add(entrada2)
     db_sql.session.commit()
 
     toma3 = Detalle_registro(
                     id_computadora=computadora1.id,
-                    id_registro=entrada2.id,
-                    fecha_hora_toma=datetime.utcnow() - timedelta(minutes=1),
+                    id_registro_entrada=entrada2.id,
+                    id_registro_salida=entrada2.id,
+                    fecha_hora_toma=datetime.utcnow() - timedelta(minutes=65),
                     )
     db_sql.session.add(toma3)
     db_sql.session.commit()
 
-    entrada2.fecha_hora_salida = datetime.utcnow()
+    entrada2.fecha_hora_salida = datetime.utcnow() - timedelta(minutes=60)
     db_sql.session.commit()

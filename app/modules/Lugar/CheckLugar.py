@@ -99,6 +99,18 @@ class CheckLugar(object):
                                    id_lugar=self.lugar.id)
                 db_sql.session.add(entrada)
                 db_sql.session.commit()
+
+                recursos_olvidados = db_sql.session.query(Detalle_registro).filter(
+                    Detalle_registro.fecha_hora_entrega.is_(None)
+                ).join(Registro.detalles_registro).filter(
+                    (Registro.fecha_hora_salida.isnot(None)) &
+                    (Registro.id_usuario == self.usuario.id) &
+                    (Registro.id_lugar == self.lugar.id)
+                )
+                if(recursos_olvidados.count()):
+                    recurso_olvidado = recursos_olvidados.first()
+                    recurso_olvidado.id_registro_salida = entrada.id
+                    db_sql.session.commit()
             else:
                 # TODO sólo permite hacer entradas extras si la entrada previa
                 # fue realizada en el lugar padre de este lugar
@@ -135,7 +147,7 @@ class CheckLugar(object):
             c_activa = db_sql.session.query(Detalle_registro.id).filter(
                 (Detalle_registro.fecha_hora_toma.isnot(None)) &
                 (Detalle_registro.fecha_hora_entrega.is_(None))
-            ).join(Registro).filter(
+            ).join(Registro.detalles_registro).filter(
                 (Registro.id_usuario == self.usuario.id) &
                 (Registro.fecha_hora_salida.is_(None))
             )

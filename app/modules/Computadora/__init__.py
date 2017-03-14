@@ -132,7 +132,7 @@ class CheckComputadora():
                 c_activa = db_sql.session.query(Detalle_registro).filter(
                     (Detalle_registro.fecha_hora_toma.isnot(None)) &
                     (Detalle_registro.fecha_hora_entrega.is_(None))
-                ).join(Registro).filter(
+                ).join(Registro.detalles_registro).filter(
                     (Registro.id_usuario == self.usuario.id) &
                     (Registro.id_lugar == self.lugar_activo.id_lugar)
                 )
@@ -181,7 +181,8 @@ class CheckComputadora():
         else:
             toma = Detalle_registro(
                             id_computadora=self.computadora.id,
-                            id_registro=self.lugar_activo.id)
+                            id_registro_entrada=self.lugar_activo.id,
+                            id_registro_salida=self.lugar_activo.id)
             db_sql.session.add(toma)
             db_sql.session.commit()
 
@@ -210,7 +211,7 @@ class CheckComputadora():
             (Detalle_registro.id_computadora == self.computadora.id) &
             (Detalle_registro.fecha_hora_toma.isnot(None)) &
             (Detalle_registro.fecha_hora_entrega.is_(None))
-        ).join(Registro).filter(
+        ).join(Registro.detalles_registro).filter(
             (Registro.id_usuario != self.usuario.id)
         )
         return c_ocupada.count() > 0
