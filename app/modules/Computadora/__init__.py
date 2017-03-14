@@ -94,8 +94,8 @@ class CheckComputadora():
         """
         if self.lugar_activo is None:
             if self.usuario is None:
-                raise ValueError("self.usuario no ha sido definido, primero llama \
-                                  a self.set_usuario")
+                raise ValueError("self.usuario no ha sido definido, primero \
+                                  llama a self.set_usuario")
             else:
                 lugar_activo = db_sql.session.query(Registro).filter(
                     (Usuario.id == self.usuario.id) &
@@ -116,6 +116,8 @@ class CheckComputadora():
         En caso de que no tenga una computadora activa retornará None.
         En caso de que no exista un usuario en self.usuario arrojará una
         excepción
+        En caso de que no exista un lugar en self.lugar_activo arrojará una
+        excepción
         :return: app.models.Detalle_registro
         :raises: ValueError
         """
@@ -129,9 +131,15 @@ class CheckComputadora():
                                       primero llama a self.obten_lugar_activo")
                 c_activa = db_sql.session.query(Detalle_registro).filter(
                     (Detalle_registro.fecha_hora_toma.isnot(None)) &
-                    (Detalle_registro.fecha_hora_entrega.is_(None)) &
-                    (Detalle_registro.id_registro == self.lugar_activo.id)
+                    (Detalle_registro.fecha_hora_entrega.is_(None))
+                ).join(Registro).filter(
+                    (Registro.id_usuario == self.usuario.id) &
+                    (Registro.id_lugar == self.lugar_activo.id_lugar)
                 )
+                print(c_activa)
+                print(self.usuario.id)
+                print(self.lugar_activo.id_lugar)
+                print(c_activa.count())
                 if(c_activa.count() > 0):
                     self.reg_comp_act = c_activa.first()
                 else:

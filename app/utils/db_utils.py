@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from app.models import Ocupacion, Lugar, Computadora, Lugares_Usuarios
+from app.models import Ocupacion, Lugar, Computadora, Registro, \
+                       Detalle_registro
+from datetime import datetime, timedelta
 from flask_security import utils
 
 
@@ -48,8 +50,10 @@ def create_sample_db(db_sql, user_datastore):
     db_sql.session.add(l_cici)
     db_sql.session.commit()
 
-    computadora = Computadora(nombre='dev01', id_lugar=l_cici.id)
-    db_sql.session.add(computadora)
+    computadora1 = Computadora(nombre='dev01', id_lugar=l_cici.id)
+    db_sql.session.add(computadora1)
+    computadora2 = Computadora(nombre='dev02', id_lugar=l_cici.id)
+    db_sql.session.add(computadora2)
     db_sql.session.commit()
 
     # Create the Roles "admin" and "end-user" -- unless they already exist
@@ -81,14 +85,40 @@ def create_sample_db(db_sql, user_datastore):
     # the User and Roles must exist before we can add a Role to the User
     db_sql.session.commit()
 
-    # lugar_usuario = Lugares_Usuarios()
-    # lugar_usuario.lugar = l_cici
-    # user_datastore.get_user('alan').lugares.append(l_cici)
-
     # Give one User has the "end-user" role, while the other
     # has the "admin" role. (This will have no effect if the
     # Users already have these Roles.) Again, commit any database changes.
     user_datastore.add_role_to_user('alan', 'end-user')
     user_datastore.add_role_to_user('admin', 'admin')
     user_datastore.add_role_to_user('admin', 'end-user')
+    db_sql.session.commit()
+
+    alan = user_datastore.get_user('alan')
+
+    entrada = Registro(id_usuario=alan.id,
+                       id_lugar=l_cici.id,
+                       fecha_hora_entrada=datetime.utcnow() -
+                       timedelta(minutes=10))
+    db_sql.session.add(entrada)
+    db_sql.session.commit()
+
+    toma1 = Detalle_registro(
+                    id_computadora=computadora1.id,
+                    id_registro=entrada.id,
+                    fecha_hora_toma=datetime.utcnow() - timedelta(minutes=8),
+                    fecha_hora_entrega=datetime.utcnow() - timedelta(minutes=6)
+                    )
+    db_sql.session.add(toma1)
+    db_sql.session.commit()
+
+    toma2 = Detalle_registro(
+                    id_computadora=computadora2.id,
+                    id_registro=entrada.id,
+                    fecha_hora_toma=datetime.utcnow() - timedelta(minutes=5),
+                    fecha_hora_entrega=datetime.utcnow() - timedelta(minutes=4)
+                    )
+    db_sql.session.add(toma2)
+    db_sql.session.commit()
+
+    entrada.fecha_hora_salida = datetime.utcnow() - timedelta(minutes=2)
     db_sql.session.commit()

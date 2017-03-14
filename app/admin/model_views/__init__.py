@@ -162,7 +162,22 @@ class RegistroAdmin(sqla.ModelView):
                                      m.Usuario.email,
                                      m.Usuario.email)),
         'detalles_registro': (lambda v, c, m, p:
-                              str(m.detalles_registro.all())
+                              Markup('<ul>') +
+                              reduce(lambda y, x:
+                                     y + Markup('<li>') +
+                                     Markup('<a href="">') +
+                                     momentjs(x.fecha_hora_toma).fromNow() +
+                                     Markup('</a>') + ' | ' +
+                                     (Markup('<a href="">') +
+                                      momentjs(x.fecha_hora_entrega).fromNow()
+                                      + Markup('</a>')
+                                      if x.fecha_hora_entrega is not None
+                                      else Markup('<a href="">') + 'Activa' +
+                                      Markup('</a>')) +
+                                     Markup('</li>'),
+                                     m.detalles_registro,
+                                     '') +
+                              Markup('</ul>')
                               ),
         # 'Computadora': (lambda v, c, m, p:
         #                 render_list_link(v, c, m, p,
