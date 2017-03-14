@@ -12,6 +12,8 @@ from utils import db_utils, admin_utils
 from flask_admin import Admin
 from modules import mod_lugar, mod_computadora
 import json
+from models import Detalle_registro, Registro, Lugar, Computadora
+from utils import render_utils
 
 app = config.app
 db_sql = config.db_sql
@@ -70,7 +72,16 @@ def home():
     user = UserMixin
     if user.is_anonymous:
         user = AnonymousUser
-    return render_template('index.html', user=user)
+    recursos_olvidados = db_sql.session.query(Detalle_registro).filter(
+        Detalle_registro.fecha_hora_entrega.is_(None)
+    ).join(Registro).filter(
+        Registro.fecha_hora_salida.isnot(None)
+    ).join(Computadora, Lugar)
+    return render_template('index.html',
+                           user=user,
+                           recursos_olvidados=recursos_olvidados.all(),
+                           render_moment=render_utils.momentjs)
+
 
 @app.route('/analytics')
 # @login_required

@@ -95,16 +95,16 @@ def create_sample_db(db_sql, user_datastore):
 
     alan = user_datastore.get_user('alan')
 
-    entrada = Registro(id_usuario=alan.id,
-                       id_lugar=l_cici.id,
-                       fecha_hora_entrada=datetime.utcnow() -
-                       timedelta(minutes=10))
-    db_sql.session.add(entrada)
+    entrada1 = Registro(id_usuario=alan.id,
+                        id_lugar=l_cici.id,
+                        fecha_hora_entrada=datetime.utcnow() -
+                        timedelta(minutes=10))
+    db_sql.session.add(entrada1)
     db_sql.session.commit()
 
     toma1 = Detalle_registro(
                     id_computadora=computadora1.id,
-                    id_registro=entrada.id,
+                    id_registro=entrada1.id,
                     fecha_hora_toma=datetime.utcnow() - timedelta(minutes=8),
                     fecha_hora_entrega=datetime.utcnow() - timedelta(minutes=6)
                     )
@@ -113,12 +113,30 @@ def create_sample_db(db_sql, user_datastore):
 
     toma2 = Detalle_registro(
                     id_computadora=computadora2.id,
-                    id_registro=entrada.id,
+                    id_registro=entrada1.id,
                     fecha_hora_toma=datetime.utcnow() - timedelta(minutes=5),
                     fecha_hora_entrega=datetime.utcnow() - timedelta(minutes=4)
                     )
     db_sql.session.add(toma2)
     db_sql.session.commit()
 
-    entrada.fecha_hora_salida = datetime.utcnow() - timedelta(minutes=2)
+    entrada1.fecha_hora_salida = datetime.utcnow() - timedelta(minutes=2)
+    db_sql.session.commit()
+
+    entrada2 = Registro(id_usuario=alan.id,
+                        id_lugar=l_cici.id,
+                        fecha_hora_entrada=datetime.utcnow() -
+                        timedelta(minutes=2))
+    db_sql.session.add(entrada2)
+    db_sql.session.commit()
+
+    toma3 = Detalle_registro(
+                    id_computadora=computadora1.id,
+                    id_registro=entrada2.id,
+                    fecha_hora_toma=datetime.utcnow() - timedelta(minutes=1),
+                    )
+    db_sql.session.add(toma3)
+    db_sql.session.commit()
+
+    entrada2.fecha_hora_salida = datetime.utcnow()
     db_sql.session.commit()

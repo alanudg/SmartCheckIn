@@ -1,4 +1,7 @@
-{% extends "layout.html" %} {% block page_content %}
+{% from 'moment.html' import moment_buttons, moment_scripts %}
+
+{% extends "layout.html" %}
+{% block page_content %}
 <div class="well">
     {% if (current_user and current_user.is_active): %} Hola {{ current_user.nombre }} | <a href="{{ url_for_security('logout') }}">Salir</a> {% if current_user.lugares: %}
     <div>
@@ -13,4 +16,22 @@
     </div>
     {% endif %} {% else %} Hola extraño <a href="{{ url_for_security('login') }}">Entrar</a> {% endif %} {% if(current_user.has_role('admin')): %} | <a href="{{ url_for('admin.index') }}">Admin</a> {% endif %}
 </div>
+
+{% if (current_user and current_user.has_role('admin')) %}
+<div class="well">
+  {{ moment_buttons() }}
+  <ul>
+    {% for recurso in recursos_olvidados: %}
+      <li>
+        {{recurso.Computadora.nombre}}@{{recurso.Computadora.Lugar.nombre}} - {{render_moment(recurso.fecha_hora_toma).fromNow()}}
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+{{ moment_scripts() }}
 {% endblock %}

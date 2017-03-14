@@ -1,0 +1,18 @@
+{% macro moment_buttons() %}
+<div class="clearfix"></div>
+<h4 class="pull-left">Formato de hora: </h4>
+<div class="btn-group" data-toggle="buttons">
+  <label class="btn btn-primary active" id="moment-relative">
+    <input type="radio" name="moment-options" autocomplete="off" checked> Relativo
+  </label>
+  <label class="btn btn-primary" id="moment-absolute">
+    <input type="radio" name="moment-options" autocomplete="off"> Abosluto
+  </label>
+</div>
+{% endmacro %}
+
+{% macro moment_scripts() %}
+<script src="{{url_for('static', filename='bower_components/moment/min/moment.min.js')}}"></script>
+<script src="{{url_for('static', filename='bower_components/moment/locale/es.js')}}"></script>
+<script src="{{url_for('static', filename='moment_custom.js')}}"></script>
+{% endmacro %}
