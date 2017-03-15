@@ -14,3 +14,4 @@ def entradas():
     formulario = intervalo_tiempo_form(csrf_enabled=False)
     if(current_user.is_authenticated):
         if 'admin' in current_user.roles:
+            return fecha
