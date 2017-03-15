@@ -8,6 +8,9 @@ class intervalo_tiempo_form(FlaskForm):
     fecha_entrada = DateField('Start Date', format='%m/%d/%Y', validators=(
         validators.Optional(),))
 
+
 def entradas():
     fecha = request.args.get('fecha_hora_entrada')
     formulario = intervalo_tiempo_form(csrf_enabled=False)
+    if(current_user.is_authenticated):
+        if 'admin' in current_user.roles:
