@@ -28,3 +28,11 @@ class Lugar(db.Model):
 
     def __hash__(self):
         return hash(self.nombre)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'nombre': self.nombre,
+            'coordenadas': str(self.coordenadas)
+        }
