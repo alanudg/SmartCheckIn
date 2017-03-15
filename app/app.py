@@ -77,6 +77,7 @@ def home():
     ).join(Registro.detalles_registro_salida).filter(
         Registro.fecha_hora_salida.isnot(None)
     ).join(Computadora, Lugar)
+
     return render_template('index.html',
                            user=user,
                            recursos_olvidados=recursos_olvidados.all(),
