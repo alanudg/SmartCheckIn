@@ -36,7 +36,7 @@ Ahora se tiene que editar el archivo ```app/config_sample.py```, y cambiar los d
 Después es necesario instalar las dependencias:
 
 ```bash
-$ npm install
+$ npm install # en caso de que se genere algún error, favor de seguir las siguientes instrucciones https://docs.npmjs.com/getting-started/fixing-npm-permissions
 $ virtualenv env
 $ source env/bin/activate
 (env) $ pip install -r requirements.txt
