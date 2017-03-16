@@ -18,7 +18,7 @@
   ],
   "repository": "https://github.com/alanudg/SmartCheckIn.git",
   "scripts": {
-    "preinstall": "npm i -g apidoc",
+    "install_apidoc": "npm i -g apidoc",
     "postinstall": "./node_modules/bower/bin/bower --allow-root install"
   },
   "author": "Alan <alan.sanchez@alumnos.udg.mx>",

@@ -36,14 +36,19 @@ Ahora se tiene que editar el archivo ```app/config_sample.py```, y cambiar los d
 Después es necesario instalar las dependencias:
 
 ```bash
-$ npm install # en caso de que se genere algún error, favor de seguir las siguientes instrucciones https://docs.npmjs.com/getting-started/fixing-npm-permissions
+$ npm install
 $ virtualenv env
 $ source env/bin/activate
 (env) $ pip install -r requirements.txt
 ```
 
-Para generar la documentación de la API (que se guardará en localhost/api/docs) se ejecuta el siguiente comando:
+En caso de que se quiera generar la documentación de la API (que se guardará en localhost/api/docs) se ejecutan los siguientes comandos previos a correr el sistema en sí:
 
+```bash
+$ npm run install_apidoc
+```
+En caso de que el comando anterior genere errores, favor de seguir [estas instrucciones](https://docs.npmjs.com/getting-started/fixing-npm-permissions).
+Después de este punto ya se puede generar la documentación:
 ```bash
 $ python manager.py apidoc
 ```
