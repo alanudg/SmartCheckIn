@@ -2,6 +2,7 @@
 from flask import render_template, flash, request
 from flask_wtf import FlaskForm
 from flask_qrcode import QRcode
+from flask_apidoc import ApiDoc
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import Required, Length, DataRequired
 # from flask_mongoengine import MongoEngine
@@ -18,6 +19,8 @@ from utils import render_utils
 
 app = config.app
 db_sql = config.db_sql
+
+doc = ApiDoc(app=app, url_path='/api/v1/docs', dynamic_url=False)
 
 
 # Create a user to test with
