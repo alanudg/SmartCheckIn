@@ -41,6 +41,13 @@ $ virtualenv env
 $ source env/bin/activate
 (env) $ pip install -r requirements.txt
 ```
+
+Para generar la documentación de la API (que se guardará en localhost/api/docs) se ejecuta el siguiente comando:
+
+```bash
+$ python manager.py apidoc
+```
+
 Por último se corre la aplicación, se pueden ver las opciones de ejecución con el siguiente comando:
 ```bash
 $ python run.py -h
