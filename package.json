@@ -2,7 +2,16 @@
   "name": "smart-check-in",
   "version": "0.0.1",
   "description": "Proyecto para Smart Check In del CICI en CUCEA",
-  "keywords": ["cici","cucea","udeg","flask","bluemix","mongodb","docker","mariadb"],
+  "keywords": [
+    "cici",
+    "cucea",
+    "udeg",
+    "flask",
+    "bluemix",
+    "mongodb",
+    "docker",
+    "mariadb"
+  ],
   "bugs": "https://github.com/alanudg/SmartCheckIn/issues",
   "contributors": [
     "Alan <alan.sanchez@alumnos.udg.mx>"
@@ -15,5 +24,8 @@
   "license": "MIT",
   "devDependencies": {
     "bower": "^1.7.9"
+  },
+  "dependencies": {
+    "apidoc": "^0.17.5"
   }
 }
