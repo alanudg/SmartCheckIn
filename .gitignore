@@ -4,3 +4,4 @@ app/static/bower_components
 *.pyc
 app/config.py
 app/static/docs
+.vscode/

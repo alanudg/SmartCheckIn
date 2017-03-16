@@ -94,7 +94,7 @@ def analytics():
     user = UserMixin
     if user.is_anonymous:
         user = AnonymousUser
-    return render_template('analytics.html', user=user)
+    return render_template('analytics/analytics.html', user=user)
 
 
 @app.route('/genera_token', methods=['POST'])
