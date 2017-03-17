@@ -12,7 +12,7 @@ from db import user_datastore
 from utils import db_utils, admin_utils
 from flask_admin import Admin
 from modules import mod_lugar, mod_computadora
-from api.v1 import mod_api
+from api import mod_api
 import json
 from models import Detalle_registro, Registro, Lugar, Computadora
 from utils import render_utils

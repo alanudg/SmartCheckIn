@@ -3,7 +3,8 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from app.config import db_sql
-from flask import request, flash, render_template, url_for, redirect, Markup
+from flask import request, flash, render_template, url_for, redirect, Markup, \
+                  session
 from app.utils import key_utils
 from flask_security import url_for_security
 from flask_login import current_user
@@ -38,6 +39,8 @@ def enlace_lugar():
             else:
                 check_lugar.set_usuario(current_user)
                 e, message = check_lugar.valida_entrada_salida_lugar()
+                if(e):
+                    session['lugar_actual'] = id_lugar
                 flash(message['text'], category=message['category'])
                 return redirect('/')
         else:
