@@ -16,11 +16,11 @@ class Registro(db.Model):
                          nullable=False)
     detalles_registro = db.relationship('Detalle_registro',
                                         backref='Registro',
-                                        primaryjoin=id==Detalle_registro.id_registro_entrada
+                                        primaryjoin=id == Detalle_registro.id_registro_entrada
                                         )
     detalles_registro_salida = db.relationship('Detalle_registro',
                                                backref='Registro_salida',
-                                               primaryjoin=id==Detalle_registro.id_registro_salida
+                                               primaryjoin=id == Detalle_registro.id_registro_salida
                                                )
 
     def __unicode__(self):

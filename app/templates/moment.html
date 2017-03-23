@@ -1,13 +1,15 @@
 {% macro moment_buttons() %}
-<div class="clearfix"></div>
-<h4 class="pull-left">Formato de hora: </h4>
-<div class="btn-group" data-toggle="buttons">
-  <label class="btn btn-primary active" id="moment-relative">
-    <input type="radio" name="moment-options" autocomplete="off" checked> Relativo
-  </label>
-  <label class="btn btn-primary" id="moment-absolute">
-    <input type="radio" name="moment-options" autocomplete="off"> Abosluto
-  </label>
+<div class="formato-hora" style="margin: 5px;">
+  <div class="clearfix"></div>
+  <h4 class="pull-left">Formato de hora: </h4>
+  <div class="btn-group" style="margin-left: 12px;margin-top: 2px;" data-toggle="buttons">
+    <label class="btn btn-primary active" id="moment-relative">
+      <input type="radio" name="moment-options" autocomplete="off" checked> Relativo
+    </label>
+    <label class="btn btn-primary" id="moment-absolute">
+      <input type="radio" name="moment-options" autocomplete="off"> Abosluto
+    </label>
+  </div>
 </div>
 {% endmacro %}
 
