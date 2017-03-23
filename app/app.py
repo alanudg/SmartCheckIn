@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, flash, request
+from flask import render_template, flash, request, session
 from flask_wtf import FlaskForm
 from flask_qrcode import QRcode
 from flask_apidoc import ApiDoc
+from flask_security import current_user
+from flask_login import user_logged_in, user_logged_out
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import Required, Length, DataRequired
 # from flask_mongoengine import MongoEngine
@@ -14,7 +16,7 @@ from flask_admin import Admin
 from modules import mod_lugar, mod_computadora
 from api import mod_api
 import json
-from models import Detalle_registro, Registro, Lugar, Computadora
+from models import Detalle_registro, Registro, Lugar, Computadora, Usuario
 from utils import render_utils
 
 app = config.app
@@ -86,6 +88,27 @@ def home():
                            user=user,
                            recursos_olvidados=recursos_olvidados.all(),
                            render_moment=render_utils.momentjs)
+
+
+@user_logged_in.connect_via(app)
+def set_session(sender, user):
+    lugar_activo = db_sql.session.query(
+            Lugar.nombre, Lugar.id, Registro.fecha_hora_entrada
+        ).join(
+            Registro
+        ).filter(
+            (Registro.id_usuario == current_user.id) &
+            (Registro.fecha_hora_salida.is_(None))
+        )
+    session['l_act'] = [{'id': i.id,
+                         'nombre': i.nombre,
+                         'fecha_hora_entrada': i.fecha_hora_entrada}
+                        for i in lugar_activo.all()]
+
+
+@user_logged_out.connect_via(app)
+def erase_session(sender, user):
+    session.clear()
 
 
 @app.route('/analytics')
