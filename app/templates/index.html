@@ -15,11 +15,14 @@
         </ul>
     </div>
     {% endif %} {% else %} Hola extraño <a href="{{ url_for_security('login') }}">Entrar</a> {% endif %} {% if(current_user.has_role('admin')): %} | <a href="{{ url_for('admin.index') }}">Admin</a> {% endif %}
+    {% if (current_user and current_user.has_role('admin')) %}
+      {{ moment_buttons() }}
+    {% endif %}
 </div>
 
 {% if (current_user and current_user.has_role('admin')) %}
 <div class="well">
-  {{ moment_buttons() }}
+  <h2>Recursos olvidados:</h2>
   <ul>
     {% for recurso in recursos_olvidados: %}
       <li>
@@ -27,6 +30,21 @@
       </li>
     {% endfor %}
   </ul>
+</div>
+{% endif %}
+
+{% if (current_user and current_user.has_role('end-user')) %}
+<div class="well">
+  <h2>Lugares activos:</h2>
+  {% if session['l_act']: %}
+    <ul>
+      {% for lugar in session['l_act']: %}
+        <li>
+          <a href="#">{{lugar.nombre}}</a> - {{render_moment(lugar.fecha_hora_entrada).fromNow()}}
+        </li>
+      {% endfor%}
+    </ul>
+  {% endif%}
 </div>
 {% endif %}
 {% endblock %}

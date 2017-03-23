@@ -40,7 +40,21 @@ def enlace_lugar():
                 check_lugar.set_usuario(current_user)
                 e, message = check_lugar.valida_entrada_salida_lugar()
                 if(e):
-                    session['lugar_actual'] = id_lugar
+                    if(check_lugar.registro_entrada is not None):  # Checkin
+                        lugar_activo = db_sql.session.query(Lugar).filter(
+                            Lugar.id == id_lugar
+                        )
+                        lugar_activo = lugar_activo.first()
+                        ent = check_lugar.registro_entrada
+                        session['l_act'].append({
+                            'id': lugar_activo.id,
+                            'nombre': lugar_activo.nombre,
+                            'fecha_hora_entrada': ent.fecha_hora_entrada
+                        })
+                    else:  # Checkout
+                        session['l_act'] = [x for x in session['l_act']
+                                            if not
+                                            int(x['id']) == int(id_lugar)]
                 flash(message['text'], category=message['category'])
                 return redirect('/')
         else:

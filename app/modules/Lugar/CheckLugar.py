@@ -18,7 +18,7 @@ class CheckLugar(object):
         self.lugar = None
         self.usuario = usuario
         self.lugar_activo = None
-
+        self.registro_entrada = None
         self.obten_lugar()
 
     def set_usuario(self, usuario):
@@ -67,7 +67,7 @@ class CheckLugar(object):
                                   a self.set_usuario")
             else:
                 lugar_activo = db_sql.session.query(Registro).filter(
-                    (Usuario.id == self.usuario.id) &
+                    (Registro.id_usuario == self.usuario.id) &
                     (Registro.fecha_hora_salida.is_(None))
                 )
                 if(lugar_activo.count() > 0):
@@ -99,6 +99,7 @@ class CheckLugar(object):
                                    id_lugar=self.lugar.id)
                 db_sql.session.add(entrada)
                 db_sql.session.commit()
+                self.registro_entrada = entrada
                 r_olvidados = db_sql.session.query(Detalle_registro).filter(
                     Detalle_registro.fecha_hora_entrega.is_(None)
                 ).join(Registro.detalles_registro).filter(
