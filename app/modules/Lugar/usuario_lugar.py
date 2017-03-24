@@ -80,11 +80,11 @@ def generar_qr_lugar(id):
         else:
             flash(u'No tienes permisos para generar QR de este lugar',
                   category='warning')
-            return render_template('index.html')
+            return redirect('/')
     else:
         flash(u'Necesitas iniciar sesión para hacer esta acción',
               category='warning')
-        return render_template('index.html')
+        return redirect('/')
 
 
 def enlace_lugar_dinamico():

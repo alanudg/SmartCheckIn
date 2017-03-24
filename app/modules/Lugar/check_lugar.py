@@ -70,7 +70,7 @@ def enlace_lugar():
                                    form=formulario)
     else:
         flash(u'Error de acceso: '+str(id_lugar))
-    return render_template('index.html')
+    return redirect('/')
 
 
 def actualizar_llave_lugar(id):

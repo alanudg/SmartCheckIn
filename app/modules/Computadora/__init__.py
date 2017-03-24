@@ -98,7 +98,7 @@ class CheckComputadora():
                                   llama a self.set_usuario")
             else:
                 lugar_activo = db_sql.session.query(Registro).filter(
-                    (Usuario.id == self.usuario.id) &
+                    (Registro.id_usuario == self.usuario.id) &
                     (Registro.fecha_hora_salida.is_(None))
                 )
                 if(lugar_activo.count() > 0):
@@ -329,7 +329,7 @@ def enlace_computadora():
                                    form=formulario)
     else:
         flash(u'Error de acceso: '+str(id_computadora))
-    return render_template('index.html')
+    return redirect('/')
 
 
 @mod_computadora.route('/actualizar_llave_computadora/<id>')
