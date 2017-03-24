@@ -131,8 +131,9 @@ class ComputadoraAdmin(sqla.ModelView):
 
 class RegistroAdmin(sqla.ModelView):
     form_excluded_columns = list = ('fecha_hora_entrada', )
-    column_list = list = ('fecha_hora_entrada', 'fecha_hora_salida', 'Lugar',
-                          'Usuario', 'Usuario.codigo', 'detalles_registro')
+    column_list = list = ('id', 'fecha_hora_entrada', 'fecha_hora_salida',
+                          'Lugar', 'Usuario', 'Usuario.codigo',
+                          'detalles_registro')
     can_create = False
     can_edit = False
     can_delete = False
@@ -165,17 +166,31 @@ class RegistroAdmin(sqla.ModelView):
                               Markup('<ul>') +
                               reduce(lambda y, x:
                                      y + Markup('<li>') +
-                                     Markup('<a href="">') +
-                                     momentjs(x.fecha_hora_toma).fromNow() +
-                                     Markup('</a>') + ' | ' +
-                                     (Markup('<a href="">') +
+                                     (x.Computadora.nombre) + ': ' +
+                                     ((Markup('<a href="">') +
+                                      momentjs(x.fecha_hora_toma).fromNow() +
+                                      Markup('</a>')) if
+                                      x.id_registro_entrada == m.id
+                                      else 'Tomada en registro ' +
+                                      str(x.id_registro_entrada)
+                                      ) +
+                                     ' | ' +
+                                     ((Markup('<a href="">') +
                                       momentjs(x.fecha_hora_entrega).fromNow()
                                       + Markup('</a>')
+                                      if x.id_registro_salida == m.id else
+                                      'Entregada en registro ' +
+                                       str(x.id_registro_salida))
                                       if x.fecha_hora_entrega is not None
                                       else Markup('<a href="">') + 'Activa' +
                                       Markup('</a>')) +
                                      Markup('</li>'),
-                                     m.detalles_registro,
+                                     list(
+                                      set(
+                                       m.detalles_registro +
+                                       m.detalles_registro_salida
+                                      )
+                                     ),
                                      '') +
                               Markup('</ul>')
                               ),
