@@ -13,11 +13,11 @@ import config
 from db import user_datastore
 from utils import db_utils, admin_utils
 from flask_admin import Admin
-from modules import mod_lugar, mod_computadora
+from modules import mod_lugar, mod_computadora, Session
 from api import mod_api
 import json
-from models import Detalle_registro, Registro, Lugar, Computadora, Usuario
 from utils import render_utils
+from models import Detalle_registro, Registro, Lugar, Computadora
 
 app = config.app
 db_sql = config.db_sql
@@ -92,18 +92,8 @@ def home():
 
 @user_logged_in.connect_via(app)
 def set_session(sender, user):
-    lugar_activo = db_sql.session.query(
-            Lugar.nombre, Lugar.id, Registro.fecha_hora_entrada
-        ).join(
-            Registro
-        ).filter(
-            (Registro.id_usuario == current_user.id) &
-            (Registro.fecha_hora_salida.is_(None))
-        )
-    session['l_act'] = [{'id': i.id,
-                         'nombre': i.nombre,
-                         'fecha_hora_entrada': i.fecha_hora_entrada}
-                        for i in lugar_activo.all()]
+    session['l_act'] = Session.get_lugares_activos(current_user.id)
+    session['l_rec'] = Session.get_recursos_activos(current_user.id)
 
 
 @user_logged_out.connect_via(app)
