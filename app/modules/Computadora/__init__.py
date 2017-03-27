@@ -4,11 +4,12 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from app.config import db_sql
 from flask import request, flash, render_template, url_for, redirect,\
-                  Blueprint, Markup
+                  Blueprint, Markup, session
 from app.utils import key_utils
 from flask_login import current_user
 from flask_security import url_for_security
 from app.models import Lugar, Usuario, Registro, Computadora, Detalle_registro
+from app.modules.Session import get_recursos_activos
 from datetime import datetime
 
 
@@ -40,6 +41,7 @@ class CheckComputadora():
         self.lugar = None
         self.lugar_activo = None
         self.reg_comp_act = None
+        self.registro_toma = None
 
         self.obten_computadora()
 
@@ -185,6 +187,7 @@ class CheckComputadora():
                             id_registro_salida=self.lugar_activo.id)
             db_sql.session.add(toma)
             db_sql.session.commit()
+            self.registro_toma = toma
 
     def registra_deja(self):
         """
@@ -312,6 +315,8 @@ def enlace_computadora():
             else:
                 check_comp.set_usuario(current_user)
                 e, res = check_comp.valida_toma_deja_computadora()
+                if(e):
+                    session['l_rec'] = get_recursos_activos(current_user.id)
                 flash(res['text'], category=res['category'])
                 return redirect('/')
         else:

@@ -10,6 +10,7 @@ from flask_security import url_for_security
 from flask_login import current_user
 from app.models import Lugar
 from CheckLugar import CheckLugar
+from app.modules.Session import get_recursos_activos
 
 
 class check_lugar_form(FlaskForm):
@@ -40,6 +41,7 @@ def enlace_lugar():
                 check_lugar.set_usuario(current_user)
                 e, message = check_lugar.valida_entrada_salida_lugar()
                 if(e):
+                    session['l_rec'] = get_recursos_activos(current_user.id)
                     if(check_lugar.registro_entrada is not None):  # Checkin
                         lugar_activo = db_sql.session.query(Lugar).filter(
                             Lugar.id == id_lugar
