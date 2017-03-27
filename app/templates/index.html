@@ -46,7 +46,31 @@
     </ul>
   {% endif%}
 </div>
+<div class="well">
+  <h2>Recursos olvidados:</h2>
+  {% if session['l_rec']: %}
+    <ul>
+      {% for recurso in session['l_rec'] if recurso.Registro.fecha_hora_salida is not none: %}
+        <li>
+          <a href="#">{{recurso.Computadora.nombre}}</a>@<a href="#">{{recurso.Lugar.nombre}}</a> - {{render_moment(recurso.Detalle_registro.fecha_hora_toma).fromNow()}}
+        </li>
+      {% endfor%}
+    </ul>
+  {% endif%}
+
+  <h2>Recursos activos:</h2>
+  {% if session['l_rec']: %}
+    <ul>
+      {% for recurso in session['l_rec'] if recurso.Registro.fecha_hora_salida is none: %}
+        <li>
+          <a href="#">{{recurso.Computadora.nombre}}</a>@<a href="#">{{recurso.Lugar.nombre}}</a> - {{render_moment(recurso.Detalle_registro.fecha_hora_toma).fromNow()}}
+        </li>
+      {% endfor%}
+    </ul>
+  {% endif%}
+</div>
 {% endif %}
+
 {% endblock %}
 
 {% block scripts %}
