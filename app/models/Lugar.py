@@ -34,5 +34,9 @@ class Lugar(db.Model):
         return {
             'id': self.id,
             'nombre': self.nombre,
-            'coordenadas': str(self.coordenadas)
+            'asignacion_automatica': self.asignacion_automatica,
+            'coordenadas': str(self.coordenadas),
+            'hora_apertura': self.hora_apertura,
+            'hora_cierre': self.hora_cierre,
+            'privado': self.privado,
         }

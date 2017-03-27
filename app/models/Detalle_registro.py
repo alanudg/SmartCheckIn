@@ -32,3 +32,11 @@ class Detalle_registro(db.Model):
 
     def __repr__(self):
         return '<Detalle_registro %d | %d>' % (self.id, self.id_registro_entrada)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'fecha_hora_toma': self.fecha_hora_toma,
+            'fecha_hora_entrega': self.fecha_hora_entrega,
+        }

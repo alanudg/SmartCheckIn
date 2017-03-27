@@ -51,3 +51,16 @@ class Usuario(db.Model, UserMixin):
     #
     # def verify_password(self, password):
     #     return check_password_hash(self.password_hash, password)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            # Datos extra
+            'codigo': self.codigo,
+            'apellido_paterno': self.apellido_paterno,
+            'apellido_materno': self.apellido_materno,
+            'nombres': self.nombres,
+            'active': self.active,
+        }

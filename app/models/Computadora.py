@@ -20,3 +20,12 @@ class Computadora(db.Model):
 
     def __hash__(self):
         return hash(self.nombre)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'key': self.key,
+            'nombre': self.nombre,
+            'disponible': self.disponible,
+        }

@@ -31,3 +31,11 @@ class Registro(db.Model):
 
     def __repr__(self):
         return '<Registro %r | %r>' % self.id, self.id_usuario
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'fecha_hora_entrada': self.fecha_hora_entrada,
+            'fecha_hora_salida': self.fecha_hora_salida,
+        }
