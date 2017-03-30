@@ -75,7 +75,8 @@ def create_sample_db(db_sql, user_datastore):
                                    apellido_paterno='Sánchez',
                                    apellido_materno='Castro',
                                    nombres='Alan Andrés',
-                                   lugares=[l_cici]
+                                   lugares=[l_cici],
+                                   token='ABCDEF',
                                    )
     if not user_datastore.get_user('andres'):
         user_datastore.create_user(email='andres',
@@ -86,7 +87,8 @@ def create_sample_db(db_sql, user_datastore):
                                    apellido_paterno='Sánchez',
                                    apellido_materno='Castro',
                                    nombres='Alan Andrés',
-                                   lugares=[l_cici]
+                                   token='GHIJKL',
+                                   lugares=[l_cici, l_cucea],
                                    )
     if not user_datastore.get_user('admin'):
         user_datastore.create_user(email='admin',
