@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from app.config import db_sql
 from datetime import datetime
-from app.models import Lugar, Usuario, Registro, Detalle_registro
+from app.models import Lugar, Usuario, Registro, Detalle_registro, \
+                       Lugares_Usuarios
 
 
 class CheckLugar(object):
@@ -175,20 +176,46 @@ class CheckLugar(object):
             return False, {'text': u'Tienes una entrada activa en otro lugar',
                            'category': 'warning'}
 
+    def verifica_acceso(self):
+        """
+        Verifica si el usuario guardado en self.usuario tiene acceso en el
+        lugar self.lugar
+        En caso de que no exista un usuario guardado en self.usuario o un lugar
+        guardado en self.lugar arrojará una excepción.
+        :raises: ValueError
+        """
+        if self.usuario is None:
+            raise ValueError("self.usuario no ha sido definido, primero llama \
+                              a self.set_usuario")
+        elif self.lugar is None:
+            raise ValueError("self.lugar no ha sido definido, primero llama \
+                              a self.obten_lugar")
+        acceso = db_sql.session.query(Lugares_Usuarios).filter(
+            (Lugares_Usuarios.id_lugar == self.lugar.id) &
+            (Lugares_Usuarios.id_usuario == self.usuario.id)
+        )
+        return acceso.count() > 0
+
     def valida_entrada_salida_lugar(self):
         """
         Valida que se pueda crear una entrada para el usuario guardado en
         self.usuario del lugar guardado en self.lugar_activo
         :return: bool, {:text: string, :category: string}
         """
-        self.lugar_activo = self.obten_lugar_activo()
-        if(self.lugar_activo is None):
-            self.registra_entrada()
-            return True, {'text': u'Usuario con código: ' + self.usuario.codigo
-                          + u' entró a ' + self.lugar.nombre,
-                          'category': 'success'}
+        if(self.verifica_acceso()):
+            self.lugar_activo = self.obten_lugar_activo()
+            if(self.lugar_activo is None):
+                self.registra_entrada()
+                return True, {'text': u'Usuario con código: ' +
+                              self.usuario.codigo + u' entró a ' +
+                              self.lugar.nombre,
+                              'category': 'success'}
+            else:
+                return self.valida_salida()
         else:
-            return self.valida_salida()
+            return False, {'text': u'El usuario: ' + self.usuario.codigo
+                           + u' no tiene acceso a ' + self.lugar.nombre,
+                           'category': 'warning'}
 
     def usuario_valido(self, codigo, nip):
         """
