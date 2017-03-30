@@ -13,7 +13,7 @@ import config
 from db import user_datastore
 from utils import db_utils, admin_utils
 from flask_admin import Admin
-from modules import mod_lugar, mod_computadora, Session
+from modules import mod_lugar, mod_computadora, Session, MQTT
 from api import mod_api
 import json
 from utils import render_utils
@@ -29,6 +29,7 @@ doc = ApiDoc(app=app, url_path='/api/docs', dynamic_url=False)
 @app.before_first_request
 def create_db():
     db_utils.create_sample_db(db_sql, user_datastore)
+    MQTT()
 
 
 # Initialize Flask-Admin
@@ -123,6 +124,7 @@ def genera_token():
 app.register_blueprint(mod_lugar)
 app.register_blueprint(mod_computadora)
 app.register_blueprint(mod_api)
+
 
 if __name__ == '__main__':
     app.run()
